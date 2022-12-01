@@ -1,0 +1,2 @@
+This folder to get restapi data and insert in new database 
+  Rest Api Module is Eighteentech_Dashboard. In Module create custom restapi to fetch sales_order_grid table.
