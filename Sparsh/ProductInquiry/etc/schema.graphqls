@@ -1,0 +1,37 @@
+type Query {
+    ProductInquiry(
+        entity_id: Int @doc(description: "entity id"),
+        pageSize: Int @doc(description: "How many items should show on the page"),
+        currentPage: Int @doc(description: "Allows to ussing paging it start with 1")        
+    ) : [getProductInquiry] @resolver( class: "Sparsh\\ProductInquiry\\Model\\Resolver\\GetData") @doc(description: "Get All  Records")
+}
+
+type getProductInquiry {
+    entity_id: Int  @doc(description: "Primary Id"),
+    name: String  @doc(description: "Custom Field 1"),
+    email: String  @doc(description: "Custom Field 1"),
+    phone: Int  @doc(description: "Status"),
+    sku: String  @doc(description: "Custom Field 1"),
+    datetime: String  @doc(description: "Custom Field 1"),
+    totalCount: Int @doc(description: "Total of ProductInquiry Data"),
+}
+
+
+type Mutation {
+    setProductInquiry(input: setNewInquiry!): setProductInquiryOutput @resolver(class: "Sparsh\\ProductInquiry\\Model\\Resolver\\SetData") @doc(description:"Contact us form")
+}
+
+input setNewInquiry {
+    entity_id : Int  @doc(description: "Primary Id"),
+    name : String  @doc(description: "Custom Field 1"),
+    email : String  @doc(description: "Custom Field 1"),
+    phone : Int  @doc(description: "Status"),
+    sku : String  @doc(description: "Custom Field 1"),
+    datetime : String  @doc(description: "Custom Field 1"),
+    description : String  @doc(description: "Custom Field 1"),
+}
+
+type setProductInquiryOutput {
+   success_message: String @doc(description: "Success Message")
+}
+
