@@ -1,0 +1,23 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd" layout="1column">
+    <body>
+        <referenceContainer name="content">
+            <referenceBlock name="header.container" remove="true" />  
+            <referenceBlock name="footer" remove="true" />
+            <block class="Eighteentech\CustomForm\Block\Form" name="CustomFormData" template="Eighteentech_CustomForm::form.phtml">
+                <container name="eighteentech.captchaform.captcha1" label="Captcha">
+                   <block class="Magento\Captcha\Block\Captcha" name="captcha" after="-" cacheable="false">
+                       <action method="setFormId">
+                           <argument name="formId" xsi:type="string">captcha_form_1</argument>
+                       </action>
+                       <action method="setImgWidth">
+                           <argument name="width" xsi:type="string">230</argument>
+                       </action>
+                       <action method="setImgHeight">
+                           <argument name="width" xsi:type="string">50</argument>
+                       </action>
+                   </block>
+                </container>
+           </block>
+        </referenceContainer>
+    </body>
+</page>

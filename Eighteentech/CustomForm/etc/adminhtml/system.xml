@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+		<tab id="eighteentech" translate="label" sortOrder="70">
+            <label>Eighteentech</label>
+        </tab>
+         <section id="eighteentech_customform"  showInDefault="1" showInWebsite="1" showInStore="1">
+            <tab>eighteentech</tab>
+            <label>Custom Form</label>
+            <resource>Eighteentech_CustomForm::config_eighteentech_customform</resource>
+            <group id="general"  showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled Custom Form Module</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

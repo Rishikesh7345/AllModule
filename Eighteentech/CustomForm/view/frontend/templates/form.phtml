@@ -1,0 +1,301 @@
+<?php
+if ($block->isEnable()): ?>
+
+<div class="masthead CommingsoonPage">
+    <div class="masthead-content text-black">
+        <div class="container-fluid px-4 px-lg-0">
+            <?php
+                echo $this->getLayout()
+                ->createBlock('Magento\Cms\Block\Block')
+                ->setBlockId('coming_soon')
+                ->toHtml();
+            ?>
+				<?php echo $this->getFormAction(); ?>
+            <form name="addData" method="post" id="addData" class="form"
+                action="<?php echo $this->getFormAction(); ?>"
+                data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+                data-mage-init='{"validation":{}}'>
+                <fieldset class="fieldset">
+                    
+                    <fieldset class="fieldset row">
+                        <div class="fields inputGroupForm">
+                            <div class="field name required">
+                               
+                                <div class="control">
+                                    <input name="name" id="name" title="Name" value="" class="input-text" type="text"
+                                        data-validate="{required:true, 'validate-alphanum-with-spaces':true}" placeholder="<?= $block->
+                                    escapeHtmlAttr(__('Name')) ?>">
+                                </div>
+                            </div>
+                            <div class="field name required">
+                                
+                                <div class="control">
+                                    <input name="email" id="email" title="Email" value="" class="input-text" type="text"
+                                        data-validate="{required:true, 'validate-email':true}" placeholder="<?= $block->
+                                    escapeHtmlAttr(__('Email')) ?>">
+                                </div>
+                            </div>
+                            <div class="field name required">                               
+                                <div class="control">
+                                    <input name="telephone" id="telephone" title="Telephone" value="" class="input-text"
+                                        type="text" data-validate="{required:true}" placeholder="<?= $block->escapeHtmlAttr(__('Mobile Number')) ?>">
+                                </div>
+                            </div>
+                            <!-- Captcha -->
+                            <?= $block->getChildHtml('eighteentech.captchaform.captcha1'); ?>
+                        </div>
+                    </fieldset>
+                </fieldset>
+				<!-- <p id="countDown"></p> -->
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button type="submit" class="action submit primary" title="Save"><span><?= $block->
+                            escapeHtmlAttr(__('Submit')) ?></span></button>
+                    </div>
+                </div>
+            </form>                   
+        </div>
+        <div class="footer">
+            <div class="container-fluid px-4 py-2">
+                <ul class="footerItems">
+                    <li><a href="/privacy-policy">Privacy Policy </a></li>
+                    <li><a href="/terms-conditions"> Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+
+
+<script>
+var countDownDate = new Date("Jan 1, 2023 15:37:25").getTime();
+var x = setInterval(function() {
+var now = new Date().getTime();
+  var distance = countDownDate - now;
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  document.getElementById("countDown").innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("countDown").innerHTML = "EXPIRED";
+  }
+}, 1000);
+</script>
+<style>
+    .masthead {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .masthead .masthead-content {
+		position: relative;
+		max-width: 80rem;
+		padding-top: 0;
+		display: grid;
+		width:100%;
+		
+		align-items: center;
+		grid-template-rows: 1fr 120px;
+    }
+    .masthead .masthead-content h1, .masthead .masthead-content .h1 {
+		font-size: 2.5rem;
+    }
+    .masthead .masthead-content p {
+		font-size: 1.8rem;
+		display: grid;
+		width: 100%;
+		text-align: center;
+		margin-bottom: 3rem;
+    }
+    .masthead .masthead-content p strong {
+		font-weight: 700;
+    }
+    .masthead .masthead-content .input-group-newsletter input {
+		height: auto;
+		width: 100%;
+		font-size: 1rem;
+		padding: 1rem;
+    }
+    .masthead .masthead-content .input-group-newsletter button {
+		font-size: 0.85rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		padding: calc(1rem + 2px);
+    }
+
+    @media (min-width: 992px) {
+
+		.masthead .masthead-content h1, .masthead .masthead-content .h1 {
+			font-size:2.5rem;
+		}
+
+    }
+    .logo{
+        margin: auto;
+        margin-bottom: 2rem;
+        width: 100%;
+        display: grid;
+        float: none;
+        max-width: 48rem;
+    }
+    .logo svg, .logo img{
+		max-width: 100%;
+    }
+
+
+    /* footer */
+    .footer {
+		position: relative;
+		padding: 5rem 0;
+		margin-top: auto;
+    }
+
+    .footer:before {
+		content: "";
+		width: 100vw;
+		margin-left: 50%;
+		transform: translateX(-50%);
+		background: #000000;
+		height: 100%;
+		position: absolute;
+		top: 0;
+    }
+
+    .footer > div {
+		position: relative;
+		z-index: 2;
+    }
+
+    .footer .footerItems {
+		padding: 0;
+		margin: 0;
+		justify-content: center;
+		grid-gap: 2rem;
+		display: grid;
+		grid-auto-flow: column;
+		list-style: none;
+    }
+
+    .footer .footerItems a {
+		color: #ffffff;
+		text-decoration: none;
+    }
+
+    .footer .footerItems li {
+		position: relative;
+		margin-bottom:0;
+    }
+
+    .footer .footerItems li:not(:last-child):after {
+		content: "";
+		height: 14px;
+		width: 1px;
+		position: absolute;
+		right: -1rem;
+		top: 0.3rem;
+		background: #ffffff;
+    }
+
+
+    .mastheadInner .masthead-content {
+		max-width: 60rem;
+		margin: auto;
+		padding: 0 1rem;
+    }
+
+    body {
+		overflow-x: hidden;
+    }
+
+    .mastheadInner {
+		padding: 2rem 0 0;
+    }
+    .inputGroupForm {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+		grid-gap: 2rem;
+	}
+
+	.inputGroupForm .field { }
+
+	.inputGroupForm .field input {
+		height: auto;
+		width: 100%;
+		font-size: 1.6rem;
+		padding: 1.5rem 1rem;
+		font-weight: 400;
+		line-height: 1.5;
+		color: #000000;
+		background-color: #fff;
+		background-clip: padding-box;
+		border: 1px solid #ced4da;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		border-radius: 0.25rem;
+		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	}
+
+	.CommingsoonPage .fieldset {
+		margin-bottom: 0;
+	}
+
+	.CommingsoonPage { }
+
+	.CommingsoonPage .actions-toolbar {
+		text-align: center;
+		display: grid;
+		justify-content: center;
+		margin-bottom: 2rem;
+	}
+
+	.CommingsoonPage .actions-toolbar .action {
+		color: #fff;
+		background-color: #000000;
+		border-color: #000000;
+		border-radius: 0.25rem;
+		transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		font-size: 1.4rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		padding: calc(1.5rem + 2px);
+	}
+	.column.main {
+		padding-bottom: 0 !important;
+	}
+	.copyright{
+		display:none;
+	}
+	.sections.nav-sections {
+		display: none;
+	}
+
+	.masthead .masthead-content > div {
+		width: 100%;
+	}
+
+	.field.captcha {
+		grid-column-end: span 3;
+	}
+
+	.field.captcha .control.captcha {
+		display: grid;
+		grid-template-columns: max-content max-content;
+		grid-gap: 3rem;
+		align-items: center;
+	}
+
+	.CommingsoonPage .actions-toolbar {
+		margin-top: 5rem;
+	}
+</style>

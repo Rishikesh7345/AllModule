@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="customform_table" resource="default" engine="innodb" comment="Custom Form Manager">
+      <column xsi:type="int" name="entity_id" padding="6" unsigned="false" nullable="false" identity="true" comment="Custom Form Record Id"/>
+      <column xsi:type="varchar" name="name" nullable="false" length="25" comment="Name" />
+      <column xsi:type="varchar" name="email" nullable="false" length="25" comment="Email" />
+      <column xsi:type="varchar" name="telephone" nullable="false" length="25" comment="Telephone" />
+      <column xsi:type="varchar" name="ip" nullable="false" length="25" comment="IP" />
+      <column xsi:type="varchar" name="browser" nullable="false" length="1024" comment="Browser" />
+      <constraint xsi:type="primary" referenceId="PRIMARY">
+         <column name="entity_id" />
+      </constraint>
+   </table>
+</schema>

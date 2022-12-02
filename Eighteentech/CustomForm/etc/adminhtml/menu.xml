@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+		<add id="Eighteentech_CustomForm::customform_manage" title="Custom Form" translate="title" module="Eighteentech_CustomForm" sortOrder="10" resource="Eighteentech_CustomForm::customform_manage" />
+	    <add id="Eighteentech_CustomForm::customform_manage_items" title="Manage Custom Form Data" module="Eighteentech_CustomForm" sortOrder="10" parent="Eighteentech_CustomForm::customform_manage" action="eighteentech_customform/customform/" resource="Eighteentech_CustomForm::customform_manage_items"/>
+	    <add id="Eighteentech_CustomForm::customform_configuration" title="Configuration" module="Eighteentech_CustomForm" sortOrder="10" parent="Eighteentech_CustomForm::customform_manage" action="adminhtml/system_config/edit/section/eighteentech_customform/" resource="Eighteentech_CustomForm::customform_configuration"/>
+    </menu>
+</config>

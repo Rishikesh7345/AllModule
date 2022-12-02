@@ -13,10 +13,12 @@ type getProductInquiry {
     phone: Int  @doc(description: "Status"),
     sku: String  @doc(description: "Custom Field 1"),
     datetime: String  @doc(description: "Custom Field 1"),
-    totalCount: Int @doc(description: "Total of ProductInquiry Data"),
+    totalCount: [totalCount] @doc(description: "Total of ProductInquiry Data"),
 }
 
-
+type totalCount {
+    total: Int  @doc(description: "Total of ProductInquiry Data")
+}
 type Mutation {
     setProductInquiry(input: setNewInquiry!): setProductInquiryOutput @resolver(class: "Eighteentech\\CustomGraphql\\Model\\Resolver\\SetData") @doc(description:"Contact us form")
 }
@@ -35,3 +37,40 @@ type setProductInquiryOutput {
    success_message: String @doc(description: "Success Message")
 }
 
+
+type Query {
+    customGraph: [customGraphql] @resolver( class: "Eighteentech\\CustomGraphql\\Model\\Resolver\\GetCustomData") @doc(description: "Get All  Records")
+}
+
+type customGraphql{
+    name: String
+}
+
+
+type Query {
+    customTestGraph: [getCustomGraphql] @resolver( class: "Eighteentech\\CustomGraphql\\Model\\Resolver\\GetCustomData") @doc(description: "Get All  Records")
+}
+
+type getCustomGraphql {
+    id: Int  @doc(description: "Primary Id"),
+    name: String  @doc(description: "Custom Field 1"),    
+    price: Int  @doc(description: "Status"),
+    sku: String  @doc(description: "Custom Field 1")
+}
+
+
+
+type Mutation {
+    setCustomTestGraph(input: setCustomGraphql!): setCustomGraphqlOutput @resolver(class: "Eighteentech\\CustomGraphql\\Model\\Resolver\\SetData") @doc(description:"Contact us form")
+}
+
+input setCustomGraphql {
+    id: Int  @doc(description: "Primary Id"),
+    name: String  @doc(description: "Custom Field 1"),
+    price: String  @doc(description: "Custom Field 1"),
+    sku: String  @doc(description: "Status"),
+}
+
+type setCustomGraphqlOutput {
+   success_message: String @doc(description: "Success Message")
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">eighteentech_customform_edit.eighteentech_customform_data_source</item>
+            <item name="deps" xsi:type="string">eighteentech_customform_edit.eighteentech_customform_data_source</item>
+        </item>
+        <item name="label" translate="true" xsi:type="string">General Information</item>
+		<item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+	<settings>
+		<buttons>
+			<button class="Eighteentech\CustomForm\Block\Adminhtml\CustomForm\Edit\BackButton" name="back"/>
+		</buttons>
+		<namespace>eighteentech_customform_edit</namespace>
+	</settings>
+    <dataSource name="eighteentech_customform_data_source">
+		<argument name="data" xsi:type="array">
+			<item name="js_config" xsi:type="array">
+				<item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+			</item>
+		</argument>
+		<dataProvider class="Eighteentech\CustomForm\Model\DataProvider" name="eighteentech_customform_data_source">
+			<settings>
+				<requestFieldName>id</requestFieldName>
+				<primaryFieldName>entity_id</primaryFieldName>
+			</settings>
+		</dataProvider>
+	</dataSource>
+	<fieldset name="data">
+		<settings>
+			<label/>
+		</settings>
+		
+		<field name="name" sortOrder="30" formElement="input">
+            <settings>
+                <dataType>string</dataType>
+                <label translate="true">Name</label>
+                <dataScope>data.name</dataScope>
+            </settings>
+        </field>
+        <field formElement="input" name="email" sortOrder="10">
+			<settings>
+				<dataType>text</dataType>
+				<label translate="true">Email</label>
+				<dataScope>data.email</dataScope>
+			</settings>
+		</field>
+        <field formElement="input" name="telephone" sortOrder="20">
+			<settings>
+				<dataType>text</dataType>
+				<label translate="true">Telephone</label>
+				<dataScope>data.telephone</dataScope>
+			</settings>
+		</field>
+		<field formElement="input" name="ip" sortOrder="20">
+			<settings>
+				<dataType>text</dataType>
+				<label translate="true">IP</label>
+				<dataScope>data.ip</dataScope>
+			</settings>
+		</field>
+		<field formElement="input" name="browser" sortOrder="20">
+			<settings>
+				<dataType>text</dataType>
+				<label translate="true">Browser</label>
+				<dataScope>data.browser</dataScope>
+			</settings>
+		</field>	
+	</fieldset>
+</form>
