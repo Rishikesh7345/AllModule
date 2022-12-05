@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+ * @author 18th DigiTech Team
+ * @copyright Copyright (c) 2022 18th DigiTech (https://www.18thdigitech.com)
+ * @package Eighteentech_Buildbox
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+   <table name="sales_order_grid" resource="default" engine="innodb" comment="sales_order_grid">
+      <column xsi:type="varchar" name="email_status" length="255" default="0" nullable="false" comment="Email Status" />
+      <column xsi:type="varchar" name="email_valid" nullable="false" length="255" comment="email valid" />
+   </table>  
+
+</schema>

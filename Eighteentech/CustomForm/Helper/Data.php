@@ -39,4 +39,12 @@ class Data extends AbstractHelper
     {
         return $this->scopeConfig->getValue('eighteentech_customform/general/enable', ScopeInterface::SCOPE_STORE);
     }
+
+    /**
+     * Get value of admin countdown date field.
+     */
+    public function countDownDate()
+    {
+        return $this->scopeConfig->getValue('eighteentech_customform/general/countdown_date', ScopeInterface::SCOPE_STORE);
+    }
 }

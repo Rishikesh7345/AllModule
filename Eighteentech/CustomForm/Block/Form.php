@@ -45,11 +45,19 @@ class Form extends Template
         return $this->getUrl('customform/index/submit', ['_secure' => true]);
     }
 
-     /**
-      * Retrieve Heler data
-      */
+    /**
+     * Retrieve Heler data
+    */
     public function isEnable()
     {
         return $this->helperData->isEnable();
+    }
+
+    /**
+     * Retrieve Heler data
+    */
+    public function countDownDate()
+    {
+        return $this->helperData->countDownDate();
     }
 }

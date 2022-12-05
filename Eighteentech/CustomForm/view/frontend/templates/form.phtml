@@ -1,92 +1,215 @@
 <?php
+/**
+ * @author 18th DigiTech Team
+ * @copyright Copyright (c) 2022 18th DigiTech (https://www.18thdigitech.com)
+ * @package Eighteentech_CustomForm
+ */
+?>
+
+<?php
 if ($block->isEnable()): ?>
-
 <div class="masthead CommingsoonPage">
-    <div class="masthead-content text-black">
-        <div class="container-fluid px-4 px-lg-0">
-            <?php
-                echo $this->getLayout()
-                ->createBlock('Magento\Cms\Block\Block')
-                ->setBlockId('coming_soon')
-                ->toHtml();
-            ?>
-				<?php echo $this->getFormAction(); ?>
-            <form name="addData" method="post" id="addData" class="form"
-                action="<?php echo $this->getFormAction(); ?>"
-                data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
-                data-mage-init='{"validation":{}}'>
-                <fieldset class="fieldset">
-                    
-                    <fieldset class="fieldset row">
-                        <div class="fields inputGroupForm">
-                            <div class="field name required">
-                               
-                                <div class="control">
-                                    <input name="name" id="name" title="Name" value="" class="input-text" type="text"
-                                        data-validate="{required:true, 'validate-alphanum-with-spaces':true}" placeholder="<?= $block->
-                                    escapeHtmlAttr(__('Name')) ?>">
-                                </div>
-                            </div>
-                            <div class="field name required">
-                                
-                                <div class="control">
-                                    <input name="email" id="email" title="Email" value="" class="input-text" type="text"
-                                        data-validate="{required:true, 'validate-email':true}" placeholder="<?= $block->
-                                    escapeHtmlAttr(__('Email')) ?>">
-                                </div>
-                            </div>
-                            <div class="field name required">                               
-                                <div class="control">
-                                    <input name="telephone" id="telephone" title="Telephone" value="" class="input-text"
-                                        type="text" data-validate="{required:true}" placeholder="<?= $block->escapeHtmlAttr(__('Mobile Number')) ?>">
-                                </div>
-                            </div>
-                            <!-- Captcha -->
-                            <?= $block->getChildHtml('eighteentech.captchaform.captcha1'); ?>
-                        </div>
-                    </fieldset>
-                </fieldset>
-				<!-- <p id="countDown"></p> -->
-                <div class="actions-toolbar">
-                    <div class="primary">
-                        <button type="submit" class="action submit primary" title="Save"><span><?= $block->
-                            escapeHtmlAttr(__('Submit')) ?></span></button>
-                    </div>
-                </div>
-            </form>                   
-        </div>
-        <div class="footer">
-            <div class="container-fluid px-4 py-2">
-                <ul class="footerItems">
-                    <li><a href="/privacy-policy">Privacy Policy </a></li>
-                    <li><a href="/terms-conditions"> Terms & Conditions</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+	<div class="masthead-content text-black signform">
+		<?= $this->getLayout()
+			->createBlock('Magento\Cms\Block\Block')
+			->setBlockId('coming_soon')
+			->toHtml();
+		?>
+		<div class="masthead-countdown-form">
+			<div class="main-container" id="comingSoonId">
+				<div class="coming-soon">
+					<h2><?=/** @noEscape */__('coming soon')?></h2>
+					<div class="first-dibs-section">
+						<h1><?=/** @noEscape */__('First Dibs')?></h1>
+						<div class="countDown-section">
+							<div id="timer">
+								<div id="days" class="countdown-timer">00:<span>Days</span></div>
+								<div id="hours" class="countdown-timer">00:<span>Hours</span></div>
+								<div id="minutes" class="countdown-timer">00:<span>Minutes</span></div>
+								<div id="seconds" class="countdown-timer">00<span>Minutes</span></div>
+							</div>
+						</div>
+
+						<div class="signup-btn">
+							<button id="countDownSignForm"><?=/** @noEscape */__('Sign Up')?></button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="mastheadsignform" style="display: none;" id="signform">
+				<div class="container-fluid px-4 px-lg-0">
+
+					<form name="addData" method="post" id="addData" class="form"
+						data-hasrequired="<?=$block->escapeHtmlAttr(__('* Required Fields'))?>"
+						data-mage-init='{"validation":{}}'>
+						<fieldset class="fieldset">
+
+							<fieldset class="fieldset row">
+								<div class="fields inputGroupForm">
+									<div class="field-heading"><h2> <?=/** @noEscape */__('SIGN UP')?></h2></div>
+									<div class="field name required">
+										<div class="control">
+											<input name="email" id="email" title="Email" value="" class="input-text" type="text"
+											data-validate="{required: true,'validate-email':true}"
+											placeholder="<?=$block->escapeHtmlAttr(__('E-mail'))?>">
+										</div>
+									</div>
+									<div class="field name required">
+										<div class="control">
+											<input name="telephone" id="telephone" title="Telephone" value="" class="input-text"
+												type="text" data-validate="{'required': true,'digits':true}" placeholder="<?=$block->escapeHtmlAttr(__('Phone Number'))?>">
+										</div>
+									</div>
+									<!-- Captcha -->
+									<?=$block->getChildHtml('eighteentech.captchaform.captcha1');?>
+								</div>
+							</fieldset>
+						</fieldset>
+						<div class="actions-toolbar">
+							<div class="primary">
+								<button type="submit" class="action submit primary" title="Done" id="submitForm">
+									<span><?=$block->escapeHtmlAttr(__('Done'))?></span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+			<div class="success-container" style="display: none;">
+				<div class="customform-success">
+					<div class="success-logo">
+						<img src="<?=$this->getViewFileUrl('Eighteentech_CustomForm::images/image.png');?>" title="Gotcha"></div>
+					<div class="success-title">
+						<h2><?=/** @noEscape */__('Gotcha!')?> </h2>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="container-fluid px-4 py-2">
+				<ul class="footerItems">
+					<li><a href="/privacy-policy"> <?=/** @noEscape */__('Privacy Policy')?> </a></li>
+					<li><a href="/terms-conditions"> <?=/** @noEscape */__('Terms & Conditions')?></a></li>
+				</ul>
+			</div>
+		</div>		
+	</div>
 </div>
-<?php endif; ?>
-
-
+<?php endif;?>
 
 <script>
-var countDownDate = new Date("Jan 1, 2023 15:37:25").getTime();
-var x = setInterval(function() {
-var now = new Date().getTime();
-  var distance = countDownDate - now;
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  document.getElementById("countDown").innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("countDown").innerHTML = "EXPIRED";
-  }
-}, 1000);
+
+require(['jquery', 'jquery/ui','mage/url',], function($,url){
+  jQuery(document).ready( function() {
+    function makeTimer() {
+        // var endTime = new Date("29 April 2018 9:56:00 GMT+01:00");
+        var endTime = new Date("<?=$block->countDownDate()?>");
+        endTime = (Date.parse(endTime) / 1000);
+
+        var now = new Date();
+        now = (Date.parse(now) / 1000);
+
+        var timeLeft = endTime - now;
+
+        var days = Math.floor(timeLeft / 86400);
+        var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+        var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+        var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+
+        if (hours < "10") { hours = "0" + hours; }
+        if (minutes < "10") { minutes = "0" + minutes; }
+        if (seconds < "10") { seconds = "0" + seconds; }
+
+        $("#days").html(days +":"+ "<span>Days</span>");
+        $("#hours").html(hours +":"+ "<span>Hours</span>");
+        $("#minutes").html(minutes +":"+ "<span>Minutes</span>");
+        $("#seconds").html(seconds + "<span>Seconds</span>");
+
+    }setInterval(function() { makeTimer(); }, 1000);
+
+	$("#countDownSignForm").click(function(){
+		$("#comingSoonId").hide();
+		$("#signform").show();
+	});
+
+	$('#addData').submit(function(e){
+		var email = $("#email").val();
+		var telephone = $("#telephone").val();
+		var regEx = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;;
+		var validEmail = regEx.test(email);
+		var regExph = /^[0-9-+]+$/;
+		var validPhone = regExph.test(telephone);
+		if (validEmail && validPhone) {
+			$("#signform").hide();
+			$.ajax({
+				type: "post",
+				url: '<?=$this->getFormAction()?>',
+				data: $("#addData").serialize(),
+				showLoader: true,
+				success: function (data) {
+					$("#comingSoonId").hide();
+					$(".success-container").show();
+					console.log(data.json_data);
+				},
+				error: function (xhr, status, error) {
+					console.error(xhr);
+				}
+			});
+		}
+	   e.preventDefault();
+	});
+  });
+});
+
 </script>
 <style>
+	.coming-soon h2 {
+		color: #000;
+		font-weight: revert;
+		font-size: 18px;
+	}
+	#countDownSignForm{
+		background: #000;
+		color: #fff;
+	}
+
+	.first-dibs-section h1 {
+		font-size: 55px !important;
+		color: #000;
+		font-weight: revert;
+	}
+	div#signform {
+		width: 60%;
+		background: #000;
+		padding: 0 38px;
+		margin-left: 108px;
+	}
+	.field-heading h2 {
+		text-align: center;
+		color: #fff;
+	}
+	button#submitForm {
+		background: #fff;
+		color: #000;
+		padding-bottom: 10px;
+		margin-bottom: 8px;
+		margin-top: -19px;
+	}
+	input#email,input#telephone {
+		border-radius: 19px;
+	}
+	.success-title h2 {
+		font-size: 45px;
+		color: #000;
+		font-weight: revert;
+	}
+	.success-logo {
+		margin-left: 27px;
+	}
+
     .masthead {
         position: relative;
         z-index: 2;
@@ -101,7 +224,7 @@ var now = new Date().getTime();
 		padding-top: 0;
 		display: grid;
 		width:100%;
-		
+
 		align-items: center;
 		grid-template-rows: 1fr 120px;
     }

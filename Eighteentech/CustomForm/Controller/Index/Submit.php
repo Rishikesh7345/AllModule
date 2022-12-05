@@ -16,7 +16,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\HTTP\Header;
-
+use Magento\Framework\Controller\Result\JsonFactory;
 /**
  * Custom Form submit action.
  */
@@ -30,29 +30,42 @@ class Submit extends Action
      * @var \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress
      */
     private $remoteAddress;
+
     /**
      * @var \Magento\Framework\HTTP\Header
      */
     protected $httpHeader;
 
     /**
+     * @var ResultFactory
+     */
+    protected $resultFactory;
+
+    /**
+     * @var JsonFactory
+     */
+    private $resultJsonFactory;
+    /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
      * @param \Eighteentech\CustomForm\Model\CustomFormFactory $customFormFactory
      * @param \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress
      * @param \Magento\Framework\HTTP\Header $httpHeader
+     * @param Magento\Framework\Controller\Result\JsonFactory;
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         CustomFormFactory $customFormFactory,
         RemoteAddress $remoteAddress,
-        Header $httpHeader
+        Header $httpHeader,
+        JsonFactory $resultJsonFactory
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->customFormFactory = $customFormFactory;
         $this->remoteAddress = $remoteAddress;
         $this->httpHeader = $httpHeader;
+        $this->resultJsonFactory = $resultJsonFactory;
         parent::__construct($context);
     }
 
@@ -72,7 +85,9 @@ class Submit extends Action
                 $model->setData('ip', $ip);
                 $model->setData('browser', $browser);
                 $model->save();
-                $this->messageManager->addSuccessMessage(__("Your Request has been Submitted Successfully."));
+                
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData(['json_data' => 'successfully']);
             }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e, __("We can\'t submit your request, Please try again."));

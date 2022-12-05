@@ -77,18 +77,18 @@ class CheckCaptchaFormObserver implements ObserverInterface
         */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $formId = 'captcha_form_1'; // this form ID should matched the one defined in the layout xml
-        $captchaModel = $this->_helper->getCaptcha($formId);
+        // $formId = 'captcha_form_1'; // this form ID should matched the one defined in the layout xml
+        // $captchaModel = $this->_helper->getCaptcha($formId);
 
-        $controller = $observer->getControllerAction();
-        if (!$captchaModel->isCorrect($this->captchaStringResolver->resolve($controller->getRequest(), $formId))) {
-            $this->messageManager->addError(__('Incorrect CAPTCHA'));
-            $this->_actionFlag->set('', \Magento\Framework\App\Action\Action::FLAG_NO_DISPATCH, true);
-            $this->_session->setCustomerFormData($controller->getRequest()->getPostValue());
-            $url = $this->_urlManager->getUrl('cms/index/index', ['_nosecret' => true]);
-            $controller->getResponse()->setRedirect($this->redirect->error($url));
-        }
+        // $controller = $observer->getControllerAction();
+        // if (!$captchaModel->isCorrect($this->captchaStringResolver->resolve($controller->getRequest(), $formId))) {
+        //     $this->messageManager->addError(__('Incorrect CAPTCHA'));
+        //     $this->_actionFlag->set('', \Magento\Framework\App\Action\Action::FLAG_NO_DISPATCH, true);
+        //     $this->_session->setCustomerFormData($controller->getRequest()->getPostValue());
+        //     $url = $this->_urlManager->getUrl('cms/index/index', ['_nosecret' => true]);
+        //     $controller->getResponse()->setRedirect($this->redirect->error($url));
+        // }
 
-        return $this;
+        // return $this;
     }
 }

@@ -14,6 +14,11 @@
                     <label>Enabled Custom Form Module</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+
+                <field id="countdown_date" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Count Down Date</label>
+                     <comment>Please follow date like this format "1 Jan 2023 12:00:00"</comment>
+                </field>
             </group>
         </section>
     </system>

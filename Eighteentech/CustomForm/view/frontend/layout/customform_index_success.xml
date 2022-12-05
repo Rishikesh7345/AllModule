@@ -1,0 +1,11 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd" layout="1column">
+    <body>
+        <referenceContainer name="content">
+            <referenceBlock name="header.container" remove="true" />  
+            <referenceBlock name="footer" remove="true" />
+            <block class="Eighteentech\CustomForm\Block\Form" name="CustomSuccess" template="Eighteentech_CustomForm::success.phtml">
+               
+           </block>
+        </referenceContainer>
+    </body>
+</page>

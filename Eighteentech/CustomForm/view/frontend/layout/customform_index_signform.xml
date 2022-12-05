@@ -5,7 +5,7 @@
         <referenceContainer name="content">
             <referenceBlock name="header.container" remove="true" />  
             <referenceBlock name="footer" remove="true" />
-            <block class="Eighteentech\CustomForm\Block\Form" name="CustomFormData" template="Eighteentech_CustomForm::form.phtml">
+            <block class="Eighteentech\CustomForm\Block\Form" name="CustomFormData" template="Eighteentech_CustomForm::signform.phtml">
                 <container name="eighteentech.captchaform.captcha1" label="Captcha">
                    <block class="Magento\Captcha\Block\Captcha" name="captcha" after="-" cacheable="false">
                        <action method="setFormId">
