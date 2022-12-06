@@ -87,13 +87,14 @@ class Submit extends Action
                 $model->save();
                 
                 $resultJson = $this->resultJsonFactory->create();
-                return $resultJson->setData(['json_data' => 'successfully']);
+                return $resultJson->setData(['json_data' => 'successfully','json_msg'=>1]);
             }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e, __("We can\'t submit your request, Please try again."));
         }
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $resultRedirect->setUrl($this->_redirect->getRefererUrl());
+        
         return $resultRedirect;
     }
 

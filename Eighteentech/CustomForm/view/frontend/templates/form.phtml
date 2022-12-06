@@ -18,9 +18,9 @@ if ($block->isEnable()): ?>
 		<div class="masthead-countdown-form">
 			<div class="main-container" id="comingSoonId">
 				<div class="coming-soon">
-					<h2><?=/** @noEscape */__('coming soon')?></h2>
+					<h2><?= /** @noEscape */__('coming soon')?></h2>
 					<div class="first-dibs-section">
-						<h1><?=/** @noEscape */__('First Dibs')?></h1>
+						<h1><?= /** @noEscape */__('First Dibs')?></h1>
 						<div class="countDown-section">
 							<div id="timer">
 								<div id="days" class="countdown-timer">00:<span>Days</span></div>
@@ -31,7 +31,7 @@ if ($block->isEnable()): ?>
 						</div>
 
 						<div class="signup-btn">
-							<button id="countDownSignForm"><?=/** @noEscape */__('Sign Up')?></button>
+							<button id="countDownSignForm"><?= /** @noEscape */__('Sign Up')?></button>
 						</div>
 					</div>
 				</div>
@@ -62,7 +62,7 @@ if ($block->isEnable()): ?>
 										</div>
 									</div>
 									<!-- Captcha -->
-									<?=$block->getChildHtml('eighteentech.captchaform.captcha1');?>
+									<?= $block->getChildHtml('eighteentech.captchaform.captcha1');?>
 								</div>
 							</fieldset>
 						</fieldset>
@@ -101,7 +101,6 @@ if ($block->isEnable()): ?>
 <?php endif;?>
 
 <script>
-
 require(['jquery', 'jquery/ui','mage/url',], function($,url){
   jQuery(document).ready( function() {
     function makeTimer() {
@@ -136,6 +135,7 @@ require(['jquery', 'jquery/ui','mage/url',], function($,url){
 	});
 
 	$('#addData').submit(function(e){
+		
 		var email = $("#email").val();
 		var telephone = $("#telephone").val();
 		var regEx = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;;
@@ -150,8 +150,13 @@ require(['jquery', 'jquery/ui','mage/url',], function($,url){
 				data: $("#addData").serialize(),
 				showLoader: true,
 				success: function (data) {
-					$("#comingSoonId").hide();
-					$(".success-container").show();
+					if(data.json_msg==1){
+						$("#comingSoonId").hide();
+						$(".success-container").show();
+					}else{
+						$("#signform").hide();
+						$("#comingSoonId").show();
+					}
 					console.log(data.json_data);
 				},
 				error: function (xhr, status, error) {
@@ -165,6 +170,7 @@ require(['jquery', 'jquery/ui','mage/url',], function($,url){
 });
 
 </script>
+
 <style>
 	.coming-soon h2 {
 		color: #000;

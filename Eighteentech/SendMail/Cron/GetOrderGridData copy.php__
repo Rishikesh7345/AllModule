@@ -1,0 +1,172 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/**
+ * @category Eighteentech
+ * @package  Eighteentech_SendMail
+ *
+ */
+namespace Eighteentech\SendMail\Cron;
+
+use \Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Psr\Log\LoggerInterface;
+
+use Magento\Framework\Mail\Template\TransportBuilder;
+class GetOrderGridData
+{
+    /**
+     * @var MailInterface
+     */
+    private $mail;
+
+    /** 
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /** 
+     * @var Array
+     */
+    protected $entityIdList=[];
+
+    /** 
+     * @var Array
+     */
+    protected $entityIdListWithErpInvoiceId=[];  
+    
+    /** 
+     * @var CollectionFactory 
+     **/
+    protected $_orderCollectionFactory;
+    
+    /** 
+     * @var \Magento\Sales\Model\ResourceModel\Order\Collection 
+     **/
+    protected $orders;
+    
+    /**
+     * Construct
+     * 
+     * @param LoggerInterface $logger
+     * @param CollectionFactory $orderCollectionFactory
+     * @param MailInterface $mail
+     */
+    public function __construct(        
+        LoggerInterface $logger,
+        CollectionFactory $orderCollectionFactory,
+        TransportBuilder $transportBuilder
+    ) {
+        $this->logger = $logger;
+        $this->_orderCollectionFactory = $orderCollectionFactory; 
+        $this->transportBuilder = $transportBuilder;
+    }
+
+    /**
+     * Get Order data of number of day
+     * 
+     * @return Json
+     */
+    public function getAllOrderData()
+    {
+        $writer = new \Zend_Log_Writer_Stream(BP . '/var/log/GetOrderGridData2345.log');
+            $logger = new \Zend_Log();
+            $logger->addWriter($writer);        
+            $logger->info('<br>===Start===='.date('Y-m-d h:i:s'));        
+
+        if (!$this->orders) 
+        {
+            $currentDate = date("Y-m-d H:i:s"); // Y-m-d h:i:s
+            $newDate = strtotime('-190 MINUTE', strtotime($currentDate));
+            $newDate = date('Y-m-d H:i:s', $newDate);
+
+            $this->orders = $this->_orderCollectionFactory->create()
+            ->addFieldToSelect('*')
+            ->addFieldToFilter('status','Complete')
+            ->addFieldToFilter('updated_at', ['gteq' => $newDate])
+            ->addFieldToFilter('updated_at', ['lteq' => $currentDate]);
+       
+        
+            $writer = new \Zend_Log_Writer_Stream(BP . '/var/log/crontabSendmail.log');
+            $logger = new \Zend_Log();
+            $logger->addWriter($writer);        
+        
+            $_orders = $this->orders;        
+            
+            $logger->info('<br>===Start===='.date('Y-m-d h:i:s'));
+            $logger->info('===count=='.count($_orders)); 
+            // $logger->info('===Starttest===='.print_r($_orders));
+        if ($_orders && count($_orders)) {                
+            foreach ($_orders as $_order) {  
+
+                $this->sendEmail($this->validatedParams());
+
+
+                $logger->info('===getEntityId===='.$_order->getEntityId());
+                $logger->info('===Start===='.$_order->getEmailValid());                
+                
+                /* Here we prepare data for our email  */
+                /* Receiver Detail  */
+                $receiverInfo = [
+                    'name' => 'Reciver Name',
+                    'email' => 'receiver@address.com'
+                ];
+                /* Sender Detail  */
+                $senderInfo = [
+                    'name' => 'Sender Name',
+                    'email' => 'sender@addess.com',
+                ];
+                /* Assign values for your template variables  */
+                $emailTemplateVariables = array();
+                $emailTempVariables['myvar1'] = $variablevalue1;
+                $emailTempVariables['myvar2'] = $variablevalue2; 
+                /* We write send mail function in helper because if we want to 
+                use same in other action then we can call it directly from helper */  
+                /* call send mail method from helper or where you define it*/  
+                $this->_objectManager->get('Eighteentech\SendMail\Helper\Email')->yourCustomMailSendMethod(
+                    $emailTempVariables,
+                    $senderInfo,
+                    $receiverInfo
+                );
+
+
+
+
+            }
+        }
+        else{
+            $logger->info('===Start===='. "You have no Orders");
+        }  
+    }      
+        die;       
+    }   
+    
+    /**
+     * Method to send email.
+     *
+     * @param array $post Post data from contact form
+     *
+     * @return void
+     */
+    private function sendEmail($post)
+    {
+        $this->mail->send(
+            $post['email'],
+            ['data' => new DataObject($post)]
+        );
+    }
+
+    /**
+     * Method to validated params.
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function validatedParams()
+    {   
+        $post = [];
+        $post['email'] = "rishikesh@18thdigitech.net";
+        return $post;
+    }
+}  
