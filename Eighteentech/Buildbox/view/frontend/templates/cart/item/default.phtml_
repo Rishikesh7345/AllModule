@@ -270,7 +270,7 @@ if ($block->getQty()!=0) {
     }?>
     <?php if ($_item->getBoxId() == 1) {
             $BoxPrice = $_item->getPrice();}?>
-    <?php  if ($_item->getBoxId() == 1 ) { ?> 
+    <?php  if ($_item->getBoxId() == 1) { ?> 
         <tr class="item-box item">
             <td colspan="4" class="col item">
                 <div class="actions-box">

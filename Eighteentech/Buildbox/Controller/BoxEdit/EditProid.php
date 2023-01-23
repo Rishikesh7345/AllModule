@@ -12,6 +12,7 @@ use Magento\Framework\UrlFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+
 class EditProid extends Action
 {
     /**
@@ -115,7 +116,6 @@ class EditProid extends Action
         \Magento\Framework\View\Element\BlockFactory $blockFactory,
         \Magento\Store\Model\App\Emulation $appEmulation,
         PriceCurrencyInterface $priceCurrency
-        
     ) {
             $this->resultPageFactory    = $resultPageFactory;
             $this->resultRawFactory     = $resultRawFactory;
@@ -143,6 +143,7 @@ class EditProid extends Action
     {
         $result = $this->resultRawFactory->create();
         $post = $this->getRequest()->getPostValue();
+      
         $editProId = $post['editProId'];
         $proditemid = $post['proditemid'];
         $boxId = $post['boxId'];
@@ -154,59 +155,143 @@ class EditProid extends Action
 
         $dimension = '';
         $html = '';
-        $editItemId = '';
-        $html = '<div class="product-cart-box" >';
-        foreach($items as $item) {          
-            
+        $editItemId=$storeKitItemQty = 0;
+        $storeKitProId=[];
+        $checkConfigProd = true; 
+        $html = '<div style="display:flex;" >';
+        foreach ($items as $item) {
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                         
             $product = $this->_productloader->create()->load($item->getProductId());
+            $productType= $item->getProductType();
             $editItemId = $item->getItemId();
             $height = $product->getHeight();
             $width = $product->getWidth();
             $lenght = $product->getLenght();
-            $dimension = ($height * $width * $lenght)/1000;
+            // $dimension = ($height * $width * $lenght)/1000;
+            $dimension = (10 * 15 * 25)/1000;
 
-            if ($product->getProdinbox() == true) {            
-                if($proditemid == $item->getBoxItemId() || $item->getBoxItemId() == null){
-                    
-                    $imageUrl = $this->getImageUrl($product,'product_page_image_small');
-                    $html .= '<div class="product-list">';
-                        if($proditemid == $item->getBoxItemId()){
-                            $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
-                            prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
-                            data-pro-id="'.$item->getProductId().'" class="proDimVal" checked> ';
-                        }else{
-                            $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
-                        prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
-                        data-pro-id="'.$item->getProductId().'" class="proDimVal"> ';
-                        }
-
-                        $html .= '<input type="hidden" name="prodDim[]" value="'.$dimension.'">
-                         <input type="hidden" name="productItemId" value="'.$proditemid.'">                               
-                        <input type="hidden" name="product-qty[]" class="product-qty" 
-                        id="prod-qty" value="'.$item->getQty().'">
+            if ($product->getProdinbox() == true) {
+                if($productType == 'configurable'){
+                    if($proditemid == $item->getBoxItemId() || $item->getBoxItemId() == null) {
+                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($item->getProductId());
+                                       
+                        if($product->getId() == $item->getProductId() && $checkConfigProd == true){
+                            $items = $this->_session->getQuote()->getAllItems();
+                            foreach($items as $childItem){
+                                if($childItem->getProductId() == $product->getId()){
+                                  $storeKitProId[] = $childItem->getItemId();
+                                  $storeKitItemQty += $childItem->getQty();
+                                }
+                            }
+                            $storeKitProId = base64_encode(serialize($storeKitProId));  
                         
-                        <div class="product-cart-box">
-                            <div class="pro-image">
+                            $imageUrl = $this->getImageUrl($product, 'product_page_image_small');
+                            $html .= '<div class="product-list">';
+                            if ($proditemid == $item->getBoxItemId()) {
+                                $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
+                                    prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
+                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" checked> ';
+                            } else {
+                                $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
+                                prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
+                                data-pro-id="'.$item->getProductId().'" class="proDimVal"> ';
+                            }
+
+                            $html .= '
+                            <input type="hidden" name="selectKitProId[]" value="'.$storeKitProId .'" id="storeKitProId">
+                            <input type="hidden" name="storeKitItemQty" value="'. $storeKitItemQty .'" id="storeKitItemQty">
+
+                            <input type="hidden" name="prodDim[]" value="'.$dimension.'">
+                            <input type="hidden" name="productItemId" value="'.$proditemid.'">                               
+                            <input type="hidden" name="product-qty[]" class="product-qty" 
+                            id="prod-qty" value="'.$item->getQty().'">
                             
-                                <img src="'.$imageUrl. '"
-                                    width="100" height="100" />
+                            <div class="product-cart-box">
+                                <div class="pro-image">
+                                    <img 
+                                        src="'.$imageUrl. '"
+                                        width="100"
+                                        height="100"
+                                    />
+                                </div>                                  
+                                <div class="name"> 
+                                        <h2>'.$item->getName().'</h2>
+                                    </div>
                                 </div>
-                                                                        
-                        <div class="name"> 
-                                <h2>'.$item->getName().'</h2>
-                            </div>
-                            <div class="price"> 
-                                <h3>Item price: <span class="price">'.$this->priceCurrency->convertAndFormat($item->getPrice(),2).'</span></h3>
-                            </div>
-                        </div>
-                    </div>';           
+                                <div class="prodQtysec">
+                                    <span>Quantity in each box?</span>
+                                    <input 
+                                        type="text" 
+                                        name="prodQtyForBox[]" 
+                                        id="prodQtyForBox"
+                                        class="qty-input"
+                                        width="45px"
+                                        value="0"
+                                    />
+                                    <p style="color: red;display:none" class="eachQty">
+                                       Please add minimum 1 qty
+                                    </p>
+                                </div>
+                            </div>';
+                        }
+                        $checkConfigProd = false; 
+                    }
+                }else {
+                    if($item->getPrice() != 0){
+                    $imageUrl = $this->getImageUrl($product, 'product_page_image_small');
+                    $html .= '<div class="product-list">';
+                            if ($proditemid == $item->getBoxItemId()) {
+                                $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
+                                    prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
+                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" checked> ';
+                            } else {
+                                $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
+                                prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
+                                data-pro-id="'.$item->getProductId().'" class="proDimVal"> ';
+                            }
+
+                            $html .= '                           
+                            <input type="hidden" name="prodDim[]" value="'.$dimension.'">
+                            <input type="hidden" name="productItemId" value="'.$proditemid.'">                               
+                            <input type="hidden" name="product-qty[]" class="product-qty" 
+                            id="prod-qty" value="'.$item->getQty().'">
+                            
+                            <div class="product-cart-box">
+                                <div class="pro-image">
+                                    <img 
+                                        src="'.$imageUrl. '"
+                                        width="100"
+                                        height="100"
+                                    />
+                                </div>                                  
+                                <div class="name"> 
+                                        <h2>'.$item->getName().'</h2>
+                                    </div>
+                                </div>
+                                <div class="prodQtysec">
+                                    <span>Quantity in each box?</span>
+                                    <input 
+                                        type="text" 
+                                        name="prodQtyForBox[]" 
+                                        id="prodQtyForBox"
+                                        class="qty-input"
+                                        width="45px"
+                                        value="0"
+                                    />
+                                    <p style="color: red;display:none" class="eachQty">
+                                       Please add minimum 1 qty
+                                    </p>
+                                </div>
+                            </div>';
+                        }
                 }
             }
         }
         $html .= '</div>';
         $result->setContents($html);
         return $result;
-    }   
+    }
     
     protected function getImageUrl($product, string $imageType = '')
     {

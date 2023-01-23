@@ -8,7 +8,7 @@ namespace Eighteentech\Buildbox\Block\Cart;
 
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable;
 use Magento\Eav\Model\Entity\Collection\AbstractCollection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -166,22 +166,22 @@ class Button extends Template
         $this->priceCurrency      = $priceCurrency;
         $this->helper             = $helper;
         $this->_productloader     = $_productloader;
-        $this->formKey = $formKey;
-        $this->cart = $cart;
-        $this->product = $product;
+        $this->formKey            = $formKey;
+        $this->cart               = $cart;
+        $this->product            = $product;
         $this->productCollectionFactory = $productCollectionFactory;
-        $this->categoryFactory = $categoryFactory;
-        $this->_objectManager = $objectmanager;
-        $this->_imageBuilder = $_imageBuilder;
-        $this->_customOptions = $customOptions;
+        $this->categoryFactory    = $categoryFactory;
+        $this->_objectManager     = $objectmanager;
+        $this->_imageBuilder      = $_imageBuilder;
+        $this->_customOptions     = $customOptions;
         parent::__construct($context, $data);
     }
 
 
     /**
-    * @param string $sku
-    */
-    public function addCustomOption($id,$value)
+     * @param string $sku
+     */
+    public function addCustomOption($id, $value)
     {
         try {
             $_product = $this->_productRepository->get($id);
@@ -201,7 +201,7 @@ class Button extends Template
                         'price_type' => 'fixed',
                         'sku' => 'Option 1 sku',
                         'sort_order' => 1,
-                    ],                   
+                    ],
                 ],
             ]
         ];
@@ -229,6 +229,18 @@ class Button extends Template
         return $this->priceCurrency->convertAndFormat($price, 2);
     }
 
+     /**
+     * Get parent product
+     *
+     * @param int $childProductId
+     * @return bool
+     */
+    public function getParentProductData($childProductId)
+    {
+        
+        return $this->productCollectionFactory->create()->load($childProductId);
+    }
+
     /**
      * Get parent product
      *
@@ -238,12 +250,12 @@ class Button extends Template
     public function getParentProductId($childProductId)
     {
         $parentConfigObject = $this->configurable->getParentIdsByChild($childProductId);
-        
-        if ($parentConfigObject) {
-           
-            return $parentConfigObject[0];
+        $id = '';
+        if (isset($parentConfigObject[0])) {
+            //set id as parent product id...
+            $id = $parentConfigObject[0];
         }
-        return false;
+        return $id;
     }
     
     /**
@@ -385,11 +397,12 @@ class Button extends Template
      */
     public function getDimension($productId)
     {
-        $product = $this->_productloader->create()->load($productId);
+        $product = $this->_productloader->create()->load(14120);
         $height = $product->getHeight();
         $width = $product->getWidth();
         $lenght = $product->getLenght();
         $totDem = ($height * $width * $lenght)/1000;
+        // die;
         return $totDem;
     }
 

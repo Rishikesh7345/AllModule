@@ -110,7 +110,8 @@ class Proid extends Action
         \Magento\Catalog\Model\Product\Option $option,
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
-        \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository
+        \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository,
+        \Magento\Checkout\Model\Cart $cart 
     ) {
             $this->resultPageFactory    = $resultPageFactory;
             $this->resultRawFactory     = $resultRawFactory;
@@ -126,6 +127,7 @@ class Proid extends Action
             $this->priceCurrency = $priceCurrency;
             $this->objectManager = $objectmanager;
             $this->_stockItemRepository = $stockItemRepository;
+            $this->_cart = $cart; 
             parent::__construct($context);
     }
 
@@ -138,7 +140,100 @@ class Proid extends Action
     {
         $result = $this->resultRawFactory->create();
         $post = $this->getRequest()->getPostValue();
+        // print_r($post);
+        // die;
+        if(isset($post['selectKitProId'])){
+            $postvalue = unserialize(base64_decode($post['selectKitProId']));
+
+        }
+        // print_r($postvalue);echo "==" ;
+        // die;
+        $cartSelectedPro = explode(",", $post['cartSelectedPro']);
       
+        $html='';
+        $proInfo='';
+
+        $SQty = $MQty = $LQty = $XSQty = $XLQty = $XXLQty = 0;
+        $storeQty = $configProSize = [];
+        $sizeOp = '';
+        $blockS = $blockM = $blockL = $blockXS = $blockXL = $blockXXL = "none";
+        $KitConfProIdS = $KitConfProIdM = $KitConfProIdL =  $KitConfProIdXS = $KitConfProIdXL = $KitConfProIdXXL = 0;
+        
+        $productInfo = $this->_cart->getQuote()->getItemsCollection();
+        $proInfo .='
+       <div class="selected-pro-details">
+           <div class="selected-pro-name">
+             <span class="title">Contains-</span>';
+            foreach ($productInfo as $item){
+             
+                 
+                if (in_array($item->getId(), $cartSelectedPro))
+                {                    
+                    $proInfo .='
+                    <span class="name">'.$item->getName().',</span>';
+                    if($item->getProductType() == 'configurable'){
+                        $ifyes=1;
+                        $parentProduct = $this->_productloader->create()->load($item->getProductId());
+                        $storeId = $this->storeManager->getStore()->getId();
+                        $productTypeInstance = $parentProduct->getTypeInstance();
+                        $productTypeInstance->setStoreFilter($storeId, $parentProduct);
+                        $usedProducts = $productTypeInstance->getUsedProducts($parentProduct);
+                        // $productAttributeOptions = $parentProduct->getTypeInstance(true)
+                        // ->getConfigurableAttributesAsArray($parentProduct);
+                        $productInfo = $this->_cart->getQuote()->getItemsCollection();
+                        $proInfo .='<table>
+                                <tr class="config-coll">
+                                    <th width="250px">Size Of '. $item->getName() .'</th>
+                                    <th>Quantity</th>
+                                </tr>';
+
+                        foreach($productInfo as $childItem){  
+                            if($ifyes != 0) {
+                               foreach($usedProducts as $childItemOp){
+                                
+                                  $psize = $this->getOptionLabelByValue("size",$childItemOp->getSize());
+                                    $configProSize[] = $psize;
+                                    $proInfo .='
+                                    <tr class="config-coll">
+                                        <td><span>'.$psize.'</span></td>
+                                        <td>
+                                            <input type="text" 
+                                                name="kitProQty"
+                                                id="kitProQty"
+                                                class="kitProQty"
+                                                value="0"
+                                                proSize="'.$psize.'"
+                                                KitConfProId="'. $childItemOp->getId().'"
+                                            />
+                                        </td>
+                                    </tr>';
+                                }
+                            }
+                            $ifyes=0;
+                        }
+                        $proInfo .='
+                            <tr class="config-coll">
+                                <td>Total Price</td>
+                                <td>
+                                    <input type="text" name="totalQty" id="totalQty" value="0">
+                                    <input type="hidden" name="selectkitParentId" id="selectkitParentId" value="'.$item->getProductId().'">
+                                    <input type="hidden" name="kitConfChildQtyId" id="kitConfChildQtyId">
+
+                                </td>
+                            </tr>
+                        </table>
+                       ';
+                    }
+                }
+            }
+        
+            // print_r(array_unique($storeQty));
+    $proInfo .=' </div>
+        <input type="hidden" value="'.base64_encode(serialize(array_unique($configProSize))).'" id="configProSize" name="configProSize">
+    </div>';
+    // echo $proInfo;
+    // die;
+        
         $product = $this->_productloader->create()->load($post['boxId']);
         $StockState = $this->objectManager->get(\Magento\CatalogInventory\Api\StockStateInterface::class);
         $inputQty = $StockState->getStockQty($product->getId(), $product->getStore()->getWebsiteId());
@@ -148,7 +243,7 @@ class Proid extends Action
          * store product parent id
          */
         $parentProdId = $post['boxParentId'];
-        $html='';
+        
         $product = $this->_productloader->create()->load($post['boxId']);
         $parentProduct = $this->_productloader->create()->load($parentProdId);
         $store = $this->storeManager->getStore();
@@ -156,7 +251,10 @@ class Proid extends Action
         URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
         $totDim = ($product->getWidth() * $product->getHeight() * $product->getLenght())/1000;
         $product->getBoxweight();
+
+
         $finalPrice = $this->priceCurrency->convertAndFormat($product->getFinalPrice(), 2);
+
         $html .= '
         <div class="product-cart-box">                 
                <div class="product-details">
@@ -300,7 +398,9 @@ class Proid extends Action
             <input type="hidden" name="selected_option_id" id="option_id"/>
             </div>';
         }
+       
         $html .= '</div>';
+        $html .= $proInfo;
         $result->setContents($html);
         return $result;
     }

@@ -23,11 +23,13 @@ class Delete extends \Magento\Checkout\Controller\Cart implements HttpPostAction
      */
     public function execute()
     {
+        
         if (!$this->_formKeyValidator->validate($this->getRequest())) {
             return $this->resultRedirectFactory->create()->setPath('*/*/');
         }
-
+       
         $id = (int)$this->getRequest()->getParam('id');
+
         if ($id) {
             try {
                 $delQuoteItem = $this->cart->getQuote()->getItemById($id);

@@ -114,7 +114,6 @@ class DimensionValue extends Action
     {
         $result = $this->resultRawFactory->create();
         $post = $this->getRequest()->getPostValue();
-       
         // Add product dimention of each product
         $sum = 0;
         if (!empty($post['proDim'])) {
@@ -145,6 +144,7 @@ class DimensionValue extends Action
                 break;
             }
         }
+       
         $html = '';
         $optId = '';
         $parentId = [];

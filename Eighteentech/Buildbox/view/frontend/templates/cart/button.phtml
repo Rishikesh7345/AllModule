@@ -17,7 +17,7 @@ if ($block->getItemsCount()): ?>
             if ($cartItem->getBoxId() != 1 && $cartItem->getBoxType() != 'yes') {
                 if ($productForBox == 1) {?>
                     <div class="build-box-btn">
-                        <button id="modal-btn">Want to build a box?</button>
+                        <button id="modal-btn">Kit up</button>
                     </div>
                 <?php break; }
             }
@@ -33,10 +33,44 @@ if ($block->getItemsCount()): ?>
     ->setBlockId('buildbox_title')
     ->toHtml();
     ?>
+<!-- // if configuration product only on allow in cart response -->
+<div id="product_check_resp" style="display:none">
+    <div class="alert alert-success" id="success-alert">
+        <div class="build-inner">                    
+            <div class="box-notice">
+                <div id="cart_product_resp"></div>                     
+                <div class="boxBtn">
+                    <a href="#" type="button" class="note-cancel-btn">Cancel</a>
+                    <a href="#" type="button" class="note-ok-btn">Ok</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="modal-content">
+    
     <div class="modal-inner-content">
+    
         <form id="build_box_form" class="build_box_form" method="post" enctype="multipart/form-data">
+            
+            <div id="modal-overlay" class=""></div>
+            <div class="buildbox_note_popup" id="buildbox_note_popup" data-index="0" style="display:none"> 
+                <div class="build-inner">                    
+                    <div class="box-notice">
+                        <h2 class="notice-title">Note:</h2>
+                        <p id="note-section">
+                        <?= /** @noEscape */ __('Since you\'re making a kit, all the quantity in the cart will be reset. 
+                            In the next step, you must select the quantity of each prodcut you want in each kit. 
+                            Then, you must enter the number of such kits you need.') ?>
+                        </p>                       
+                        <div class="boxBtn">
+                            <a href="#" type="button" class="note-cancel-btn">Cancel</a>
+                            <a href="#" type="button" class="note-ok-btn">Ok</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="build_box_steps build_box_step_1" data-index="1"> 
                 <div class="build-inner">
@@ -56,38 +90,135 @@ if ($block->getItemsCount()): ?>
                 </div>
             </div>
 
-            <div class="build_box_steps build_box_step_2" data-index="3">
-                <h2 class="box-title-name"></h2>
+            <div class="build_box_steps build_box_step_2" data-index="2">
+                <p class="nameofkit" style="display:flex">
+                    <span class="kit-name"><?= /** @noEscape */ __('Name of the Kit: ')?></span>
+                    <span class="box-title-name"></span>
+                </p>
                 <hr>
-                <h3> 
-                <?= /** @noEscape */ __('Select the products per box!( 
-                    <span class="pro-select">0</span> selected)') ?></h3>
+                <div class="qty-input-section">
+                    <h3> 
+                        <?= /** @noEscape */ __('Please select from the below items that you want in the kit and the quantity of each item per kit') ?>
+                    </h3>
+                </div>
                 <div class="product-cart4-box">
                     <div class="product-cart-box">
                         <?php
                         $checkProductInCart = 0;
+                        $checkConfigProd = true;
+                        $storeKitProId = [];
+                        $storeKitItemQty = 0;
                         foreach ($block->getItems() as $cartItem):
-                             $cartProId = $cartItem->getProductId();
-                             $cartItemId = $cartItem->getItemId();
-                             $productimages1 = [];
-                             $productimages1 = $block->getCartImage($cartProId);
-                             $dimension = $block->getDimension($cartProId);
+                           
+                            $cartProId = $cartItem->getProductId();
+                            $cartItemId = $cartItem->getItemId();
+                            $productType = $cartItem->getProductType();
+                            
+                            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                         
+                            $productimages1 = [];
+                            $productimages1 = $block->getCartImage($cartProId);
+                            $dimension = $block->getDimension($cartProId);
                             //  check product for box
-                             $productForBox = $block->getCheckProduct($cartProId);
+                            $productForBox = $block->getCheckProduct($cartProId);
                             if ($productForBox == 1) {
                                 if ($cartItem->getBoxId() != 1 &&
                                 $cartItem->getPrice() != 0 && $cartItem->getBoxType() === null) {
-                                    $dimension = $block->getDimension($cartProId);
-                                    ?>
+                                    $dimension = $block->getDimension($cartProId);                                   
+                                    
+                                    if($productType == 'configurable'){
+                                      
+                                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($cartProId);
+                                       
+                                        if($product->getId() == $cartProId && $checkConfigProd == true){
+
+                                            foreach($block->getItems() as $childItem){
+                                                if($childItem->getProductId() == $product->getId()){
+                                                  $storeKitProId[] = $childItem->getItemId();
+                                                  $storeKitItemQty += $childItem->getQty();
+                                                }
+                                            }
+                                           
+                                            // die;
+                                            $storeKitProId = base64_encode(serialize($storeKitProId));  
+                                        ?>
                                     <div class="product-list">
 
                                         <input type="checkbox" name="getItem[]" 
-                                        value="<?= /* @noEscape */ $cartItemId?>" 
-                                        prod-qty="<?= /* @noEscape */ $cartItem->getQty() ?>" 
-                                        data-dim="<?= /* @noEscape */ $dimension ?>" 
-                                        data-pro-id="<?= /* @noEscape */ $cartProId ?>" 
-                                        class="proDimVal" /> 
+                                          value="<?= /* @noEscape */ $cartItemId?>" 
+                                          prod-qty="<?= /* @noEscape */ $cartItem->getQty() ?>" 
+                                          data-dim="<?= /* @noEscape */ $dimension ?>" 
+                                          data-pro-id="<?= /* @noEscape */ $cartProId ?>" 
+                                          class="proDimVal"
+                                        /> 
+                                        <input type="hidden" name="selectKitProId[]" value="<?= /* @noEscape */ $storeKitProId ?>" id="storeKitProId">
+                                        <input type="hidden" name="storeKitItemQty" value="<?= /* @noEscape */ $storeKitItemQty ?>" id="storeKitItemQty">
                                         <input type="hidden" name="prodDim[]" value="<?= /* @noEscape */ $dimension?>"/>
+
+                                        <input 
+                                           type="hidden"
+                                           name="prodName[]" 
+                                           value="<?= $cartItem->getName()?>" 
+                                           id="cartProdName" 
+                                           selectedProId="<?= $cartItem->getId()?>"
+                                        />
+                                            
+                                        <input type="hidden" name="product-qty[]" 
+                                        class="product-qty" value="<?= /* @noEscape */ $cartItem->getQty() ?>"/>
+                                        
+                                        <div class="product-cart-box" >
+                                            <?php foreach ($productimages1 as $productimage1) {?>
+                                                <div class="pro-image">
+                                                    <?= /* @noEscape */
+                                                    '<img src="'.$productimage1["url"]. '"
+                                                     width="100" height="100" />';?>
+                                                    </div>
+                                            <?php break; } ?>                                                      
+                                            <div class="name"> 
+                                                <h2>
+                                                    <?= /* @noEscape */ $cartItem->getName()?></h2>
+                                            </div>
+                                            <div class="price" style="display:none;"> 
+                                                <h3>Item price: 
+                                                    <?= /* @noEscape */ $block->getCurrencyWithFormat(
+                                                        $cartItem->getPrice()
+                                                    )?>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="prodQtysec">
+                                            <span><?= /** @noEscape */ __('Quantity in each box?')?></span>
+                                            <input 
+                                                type="text" 
+                                                name="prodQtyForBox[]" 
+                                                id="prodQtyForBox" class="qty-input"
+                                                width="45px"
+                                                value="0"
+
+                                            />
+                                            <p style='color: red; display:none' class='eachQty'>
+                                                <?= /** @noEscape */ __('Please add minimum 1 qty')?>
+                                            </p>
+                                        </div>
+                                    </div> 
+                                <?php
+                                   $checkConfigProd = false; 
+                                }
+                                   } else { ?>
+                                        <div class="product-list">
+
+                                        <input 
+                                          type="checkbox" 
+                                          name="getItem[]" 
+                                          value="<?= /* @noEscape */ $cartItemId?>" 
+                                          prod-qty="<?= /* @noEscape */ $cartItem->getQty() ?>" 
+                                          data-dim="<?= /* @noEscape */ $dimension ?>" 
+                                          data-pro-id="<?= /* @noEscape */ $cartProId ?>" 
+                                          class="proDimVal" 
+                                        /> 
+                                        <input type="hidden" name="prodDim[]" value="<?= /* @noEscape */ $dimension?>"/>
+
+                                        <input type="hidden" name="prodName[]" value="<?= $cartItem->getName()?>" id="cartProdName" selectedProId="<?= $cartItem->getId()?>"/>
                                                                                
                                         <input type="hidden" name="product-qty[]" 
                                         class="product-qty" value="<?= /* @noEscape */ $cartItem->getQty() ?>"/>
@@ -103,16 +234,32 @@ if ($block->getItemsCount()): ?>
                                             <div class="name"> 
                                                 <h2><?= /* @noEscape */ $cartItem->getName()?></h2>
                                             </div>
-                                            <div class="price"> 
+                                            <div class="price" style="display:none;"> 
                                                 <h3>Item price: 
                                                     <?= /* @noEscape */ $block->getCurrencyWithFormat(
                                                         $cartItem->getPrice()
                                                     )?>
                                                 </h3>
                                             </div>
+                                            
                                         </div>
-                                    </div>                                   
-                                <?php } else {
+                                        <div class="prodQtysec">
+                                            <span><?= /** @noEscape */ __('Quantity in each box?')?></span>
+                                            <input 
+                                                type="text" 
+                                                name="prodQtyForBox[]" 
+                                                id="prodQtyForBox"
+                                                class="qty-input"
+                                                width="45px"
+                                                value="0"
+                                            />
+                                            <p style='color: red;display:none' class='eachQty'>
+                                                <?= /** @noEscape */ __('Please add minimum 1 qty')?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <?php }
+                            } else {
                                     $checkProductInCart = 1;
                                 }
                             }
@@ -129,8 +276,12 @@ if ($block->getItemsCount()): ?>
                 </div>
             </div>
             
-            <div class="build_box_steps build_box_step_3" data-index="2">
-                <h2 class="box-title-name"></h2>
+            <div class="build_box_steps build_box_step_3" data-index="3">
+                <p class="nameofkit" style="display:flex">
+                    <input type="hidden" name="cartSelectedPro" id="cartSelectedPro" />
+                    <span class="kit-name">Name of the Kit: </span>
+                    <span class="box-title-name"></span>
+                </p>
                 <hr>
                 <h2> 
                 <?= /** @noEscape */ __('Select any one type of box you want!') ?></h2>         
@@ -148,8 +299,11 @@ if ($block->getItemsCount()): ?>
             </div>    
 
             <div class="build_box_steps build_box_step_4" data-index="4">
-                <h2 class="box-title-name"></h2>
-                <h2> 
+                <p class="nameofkit" style="display:flex">
+                    <span class="kit-name">Name of the Kit: </span>
+                    <span class="box-title-name"></span>
+                </p>
+                <!-- <h2> 
                     <?= /** @noEscape */ __('I would like to order')?> 
                     <input type="text" name="boxQty" value="1" class="boxProdInput boxQty" id="boxQty" readonly>
                     <input type="hidden" id="boxQtyHid" value="1">
@@ -159,9 +313,9 @@ if ($block->getItemsCount()): ?>
                     <p id="QtyErr"> <?= /** @noEscape */ __('There is a min quantity of')?> 
                     <span id="minQty"></span> <?= /** @noEscape */ __(' for this product') ?></p>
                     <p id="qtyResErr"></p>
-                </h2>
-                <h4 id="count-product-box">0</h4>
-                <hr>               
+                </h2> -->
+                <!-- <h4 id="count-product-box">0</h4> -->
+             
                 <div class="product-cart2-box">
                     <div id="responseBox"></div>
                     <div id="respProId"></div> 
@@ -195,8 +349,10 @@ if ($block->getItemsCount()): ?>
                         <?php }?>                        
                 </div>               
                 <div class="box-btn submit_button">
+                    <p id="proQty" class="error">Please enter minimum 1 qty of kit product.</p>
                     <p id="selectError1" class="error">Please Select item for Box.</p>
-                    <a href="#" class="pre-btn4"><?= /** @noEscape */ __('Back') ?></a>                  
+                    <a href="#" class="pre-btn4"><?= /** @noEscape */ __('Back') ?></a>
+                    <input type="hidden" name="SelectedStoreQty[]" id="SelectedStoreQty" />                  
                     <button type="submit" id="submit"><?= /** @noEscape */ __('Go To Cart') ?></button>
                 </div> 
             </div>         
@@ -211,26 +367,22 @@ if ($block->getItemsCount()): ?>
     
     <form id="build_box_edit" class="build_box_form" method="post" enctype="multipart/form-data">
         <div class="build_box_edit build_box_step_1 " data-index="1"> 
-			
-			<div class="build-inner">
-				<div class="boxImg"><?= /* @noEscape */ $img?></div>
-				<div class="box-field">
-					<p id="invaildName" style="display: none; color:red;">Please enter a valid name</p>
-					<div class="box-name">
-						<?= /* @noEscape */ $popuptitle?>
-						<input type="text" name="edit-box-name" class="edit-box-name" autocomplete="off"/>
-						<input type="hidden" name="edit-proid" class="edit-proid" />
-						<input type="hidden" name="edit-prodItemId" class="edit-prodItemId" />
-						
-						
-					</div>
-					<div class="boxBtn">
-						<a href="#" type="button" class="skip-btn2">Skip</a>
-						<a type="submit" id="name-edit-save"><?= /** @noEscape */ __('Save') ?></a>
-					</div>
-				</div>
-			</div>
-            
+            <div class="boxImg"></div>
+            <div class="box-name">
+                <h2 class="label-title"><span>
+                <?= /** @noEscape */ __('Create a name for your box!: ') ?></span></h2>
+                <h3><?= /** @noEscape */ __('For example, you might want to call this 
+                "Holi Gift box" or "Employee appreciation box"
+                so that you can identify the box more easily!') ?></h3>
+                <input type="text" name="edit-box-name" class="edit-box-name" />
+                <input type="hidden" name="edit-proid" class="edit-proid" />
+                <input type="hidden" name="edit-prodItemId" class="edit-prodItemId" />
+            </div>
+            <div class="boxBtn">
+                <a href="#" type="button" class="skip-btn2">Skip</a>
+                
+                <button type="submit" id="name-edit-save"><?= /** @noEscape */ __('Save') ?></button>
+            </div>
         </div>       
     </form>
     </div>
@@ -262,7 +414,11 @@ if ($block->getItemsCount()): ?>
         </div>
 
         <div class="edit_build_box edit_build_box_2" data-index="3">
-            <h2 class="box-title-name"></h2>
+                <p class="nameofkit" style="display:flex">
+                    <input type="hidden" name="cartSelectedPro" id="cartSelectedPro" />
+                    <span class="kit-name">Name of the Kit: </span>
+                    <span class="box-title-name"></span>
+                </p>
             <hr>
             <h2> 
             <?= /** @noEscape */ __('Select any one type of box you want!') ?></h2> 
@@ -280,33 +436,27 @@ if ($block->getItemsCount()): ?>
         </div>    
 
         <div class="edit_build_box edit_build_box_3" data-index="4">
-            <h2 class="box-title-name"></h2>
-            <h2> 
-                <?= /** @noEscape */ __('I would like to order')?> 
-                <input type="text" name="editBoxQty" value="1" class="boxProdInput editBoxQty" id="editBoxQty" readonly/>
-                <input type="hidden" id="editBoxQtyHid" value="1"/>
-                <input type="hidden" name="per_box_price" id="per_box_price" value=""/>
-                <?= /** @noEscape */ __('boxs')?>
-                <p id="editQtyErr" style="display:none; font-size:16px;">
-                 <?= /** @noEscape */ __('There is a min quantity of')?> 
-                <span id="editMinQty"></span> <?= /** @noEscape */ __(' for this product') ?></p>
-                <p id="qtyResErr"></p>
-            </h2>
-            <h4 id="countProduct">0</h4>
-            <hr>               
+            <p class="nameofkit" style="display:flex">
+                <span class="kit-name">Name of the Kit: </span>
+                <span class="box-title-name"></span>
+            </p>
+         
             <div class="product-cart2-box">                    
                 <div id="respProDetails"></div>
                 <div id="editRespOption"></div>
                 <p id="editFileErr" style="color:red;"><?= /** @noEscape */ __('Invaild File Type')?></p> 
-            </div> 
+            </div>
+
             <div class="perBoxSection">
                 <div class="proInBox">
                     <input type="checkbox" name="itemInBox" id="itemInBox" class="itemInBox">
                     <label for=""><?= /** @noEscape */ __('ESDC Pricing')?></label>
                      <span id="esdcclick">Click to view info</span> 
                 </div>
+
                 <div class="esdcinfo-show" style="display:none">
-                <div class="esdc-content"></div>Status Updates over Email & SMS to consignee<br>
+                    <div class="esdc-content"></div>
+                    Status Updates over Email & SMS to consignee<br>
                     Customer Care over Email & Live Chat<br>
                     Ticket Based Issue Tracking<br>
                     Live Dashboard<br>
@@ -317,17 +467,17 @@ if ($block->getItemsCount()): ?>
                     100% Accuracy of Addresses in our required format is mandatory<br>
                     Modifications, Cancellation or Correction of addresses will not be 
                     entertained after the addresses are submitted</div></div>
-                <?php if ($checkProductInCart != 1) {?>
-
-                    <div class="perBoxPrice">
-                        <h4> <?= /** @noEscape */ __('Per Box Price: ') ?><span id="editparPrice">0</span></h4>
-                        <h4> <?= /** @noEscape */ __('Total Box price: ') ?><span id="editPrice">0</span></h4>
-                    </div>
-                <?php }?>                        
+                    <?php if ($checkProductInCart != 1) {?>
+                        <div class="perBoxPrice">
+                            <h4> <?= /** @noEscape */ __('Per Box Price: ') ?><span id="editparPrice">0</span></h4>
+                            <h4> <?= /** @noEscape */ __('Total Box price: ') ?><span id="editPrice">0</span></h4>
+                        </div>
+                    <?php }?>                        
             </div>               
             <div class="box-btn edit_submit_button">
                 <p id="selectError1" class="error1" style="display:none;">Please Select item for Box.</p>
-                <a href="#" class="pre-btn3"><?= /** @noEscape */ __('Back') ?></a>                  
+                <a href="#" class="pre-btn3"><?= /** @noEscape */ __('Back') ?></a>   
+                <input type="hidden" name="SelectedStoreQty[]" id="StoreEditProQty" />               
                 <button id="save-change"><?= /** @noEscape */ __('Save') ?></button>
             </div>  
         </div> 

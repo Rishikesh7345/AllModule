@@ -21,29 +21,29 @@ $checkProductInBox= '';?>
             if ($columnName == "box-type") {?>
                 <?= /* @noEscape */ $_item->getBoxType()?>
             <?php }
-            if($columnName == "product"){				
-				if ($_item->getBoxType() == "yes") {
-					$checkProductInBox = $_item->getSku();?>
-                <?= /* @noEscape */ $_item->getBoxType()?>
-            <?php }            
-				if ($_item->getBoxId() == 1) {					
-					$productOptions = ($_item->getProductOptions());
-					if(!empty($productOptions['info_buyRequest']['options'])){
-						foreach($productOptions['info_buyRequest']['options'] as $proption){
-							if(isset($proption['quote_path'])){
-								$imgPath = $proption['quote_path'];?>
-								<?= /* @noEscape */ '<div>
+            if ($columnName == "product") {
+                if ($_item->getBoxType() == "yes") {
+                    $checkProductInBox = $_item->getSku();?>
+                            <?= /* @noEscape */ $_item->getBoxType()?>
+                        <?php }
+                if ($_item->getBoxId() == 1) {
+                    $productOptions = ($_item->getProductOptions());
+                    if (!empty($productOptions['info_buyRequest']['options'])) {
+                        foreach ($productOptions['info_buyRequest']['options'] as $proption) {
+                            if (isset($proption['quote_path'])) {
+                                $imgPath = $proption['quote_path'];?>
+                                <?= /* @noEscape */ '<div>
                                 <span class="logo-title">Logo: </span>
                                     <a href="'.$block->getBaseUrl().'media/'.$imgPath.'" 
                                 target="_blank">'.$proption['title'].'</a>
                                 </div>';?>
-							<?php }						
-						}
-					}
-					
-					?>            
+                            <?php }
+                        }
+                    }
+                    
+                    ?>            
             <?php }
-			}
+            }
             ?>
         </td>
     <?php endforeach; ?>

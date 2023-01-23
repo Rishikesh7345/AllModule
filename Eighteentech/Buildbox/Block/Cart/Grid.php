@@ -6,6 +6,8 @@
  */
 namespace Eighteentech\Buildbox\Block\Cart;
 
+use Eighteentech\Buildbox\Helper\Data;
+use Magento\Catalog\Model\ProductFactory;
 /**
  * Block on checkout/cart/index page to display a pager on the  cart items grid
  * The pager will be displayed if items quantity in the shopping cart > than number from
@@ -46,6 +48,15 @@ class Grid extends \Magento\Checkout\Block\Cart
     private $isPagerDisplayed;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
+     * @var ProductFactory
+     */
+    private $_productloader;
+    /**
      * Grid constructor.
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
@@ -55,6 +66,8 @@ class Grid extends \Magento\Checkout\Block\Cart
      * @param \Magento\Framework\App\Http\Context $httpContext
      * @param \Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory $itemCollectionFactory
      * @param \Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface $joinProcessor
+     * @param Data $helper
+     * @param ProductFactory $_productloader
      * @param array $data
      */
     public function __construct(
@@ -66,10 +79,14 @@ class Grid extends \Magento\Checkout\Block\Cart
         \Magento\Framework\App\Http\Context $httpContext,
         \Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory $itemCollectionFactory,
         \Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface $joinProcessor,
+        Data $helper,
+        ProductFactory $_productloader,
         array $data = []
     ) {
-        $this->itemCollectionFactory = $itemCollectionFactory;
+        $this->itemCollectionFactory  = $itemCollectionFactory;
         $this->joinAttributeProcessor = $joinProcessor;
+        $this->helper                 = $helper;
+        $this->_productloader     = $_productloader;
         parent::__construct(
             $context,
             $customerSession,
@@ -124,6 +141,37 @@ class Grid extends \Magento\Checkout\Block\Cart
         return $this;
     }
 
+    /**
+     * Change Price
+     *
+     * @param string $price
+     * @return array
+     */
+    public function formatPrice($price)
+    {
+        return $this->helper->convertPrice($price, true, false);
+    }
+
+    /**
+     * Get product Id
+     *
+     * @param int $productId
+     * @return bool
+     */
+    public function getProductImage($productId)
+    {
+        $product = $this->_productloader->create()->load($productId);
+        $productimages = $product->getMediaGalleryImages();
+        $proImage='';
+        $onceTime='yes';
+        foreach($productimages as $productimage){
+            if($onceTime=='yes'){
+                $proImage= "<img src='".$productimage['url']."' width='100' height='100' class='kit-pro-id'/>";
+                $onceTime='no';
+            }
+        }
+        return $proImage;
+    }
     /**
      * Prepare quote items collection for pager
      *

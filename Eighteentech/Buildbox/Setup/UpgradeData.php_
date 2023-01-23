@@ -111,7 +111,7 @@ class UpgradeData implements UpgradeDataInterface
             'height' => [
                 'group' => $groupBoxName,
                 'type' => 'text',
-                'label' => __('Product Height'),
+                'label' => __('Kit Product Height'),
                 'input' => 'text',
                 
                 'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
