@@ -126,13 +126,21 @@ class CheckCartConfigProduct extends Action
         $items = $this->cart->getQuote()->getAllItems();
         $storeId = [];
         foreach($items as $item) {
+            if($item->getProductType() == 'configurable'){
+                $cart = $this->cart;
+                $quote = $cart->getQuote();  
+                $qouteItem = $quote->getItemById($item->getItemId());
+                if($qouteItem->getItemId() == $item->getParentItemId()){
+                    echo $item->getName();
+                }
+                
+            }
             $parentConfigObject = $this->configurable->getParentIdsByChild($item->getProductId());
             $id = '';
             if (isset($parentConfigObject[0])) {
                 //set id as parent product id...
                 $id = $parentConfigObject[0];
-                $storeId[] = $id;
-               
+                $storeId[] = $id;               
             }
             
             $product = $this->_productloader->create()->load($id);

@@ -344,9 +344,9 @@ class BoxEdit extends Template
     public function getDimension($productId)
     {
         $product = $this->_productloader->create()->load($productId);
-        $height = $product->getHeight();
-        $width = $product->getWidth();
-        $lenght = $product->getLenght();
+        $height = $product->getKitHeight();
+        $width = $product->getKitWidth();
+        $lenght = $product->getKitLenght();
         $totDem = ($height * $width * $lenght)/1000;
         return $totDem;
     }

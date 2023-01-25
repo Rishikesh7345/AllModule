@@ -283,7 +283,7 @@ if ($block->getQty()!=0) {
                     $items = $quote->getAllVisibleItems();
                     
                 foreach ($items as $item) {?>
-                    <?php if ($item->getBoxItemId() == $_item->getItemId()): ?>
+                    <?php if ($item->getBoxProductId() == $_item->getProductId()): ?>
                         <div class="box-items">
                             <?php
                             $objectmanager = \Magento\Framework\App\ObjectManager::getInstance();

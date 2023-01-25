@@ -160,17 +160,22 @@ class Proid extends Action
         $KitConfProIdS = $KitConfProIdM = $KitConfProIdL =  $KitConfProIdXS = $KitConfProIdXL = $KitConfProIdXXL = 0;
         
         $productInfo = $this->_cart->getQuote()->getItemsCollection();
+        $BoxName='';
+        $arrProSize = [];
         $proInfo .='
        <div class="selected-pro-details">
            <div class="selected-pro-name">
              <span class="title">Contains-</span>';
             foreach ($productInfo as $item){
              
-                 
+                 if($item->getBoxId() == '1'){
+                    $BoxName= $item->getBoxName();
+                 }
                 if (in_array($item->getId(), $cartSelectedPro))
                 {                    
                     $proInfo .='
-                    <span class="name">'.$item->getName().',</span>';
+                    <span class="name" boxname="'.$BoxName.'">'.$item->getName().',</span>';
+                    
                     if($item->getProductType() == 'configurable'){
                         $ifyes=1;
                         $parentProduct = $this->_productloader->create()->load($item->getProductId());
@@ -186,13 +191,18 @@ class Proid extends Action
                                     <th width="250px">Size Of '. $item->getName() .'</th>
                                     <th>Quantity</th>
                                 </tr>';
-
-                        foreach($productInfo as $childItem){  
+                                // echo $item->getQty()."\n";   
+                        foreach($productInfo as $childItem){ 
+                            if($childItem->getParentItemId() == $item->getItemId()){
+                                echo $childItem->getProductId()."\n";   
+                                echo $childItem->getQty();                             
+                            }
                             if($ifyes != 0) {
                                foreach($usedProducts as $childItemOp){
-                                
+                                    echo $childItemOp->getId()."\n";
                                   $psize = $this->getOptionLabelByValue("size",$childItemOp->getSize());
                                     $configProSize[] = $psize;
+                                    $arrProSize[$childItemOp->getId()] = $psize;
                                     $proInfo .='
                                     <tr class="config-coll">
                                         <td><span>'.$psize.'</span></td>
@@ -227,9 +237,10 @@ class Proid extends Action
                 }
             }
         
-            // print_r(array_unique($storeQty));
+            // print_r(array_unique($arrProSize));
     $proInfo .=' </div>
         <input type="hidden" value="'.base64_encode(serialize(array_unique($configProSize))).'" id="configProSize" name="configProSize">
+        <input type="hidden" value="'.base64_encode(serialize(array_unique($arrProSize))).'" id="arrProSize" name="arrProSize">
     </div>';
     // echo $proInfo;
     // die;
@@ -249,9 +260,8 @@ class Proid extends Action
         $store = $this->storeManager->getStore();
         $productImageUrl = $store->getBaseUrl(\Magento\Framework\UrlInterface::
         URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-        $totDim = ($product->getWidth() * $product->getHeight() * $product->getLenght())/1000;
+        $totDim = ($product->getKitWidth() * $product->getKitHeight() * $product->getKitLength())/1000;
         $product->getBoxweight();
-
 
         $finalPrice = $this->priceCurrency->convertAndFormat($product->getFinalPrice(), 2);
 

@@ -397,12 +397,11 @@ class Button extends Template
      */
     public function getDimension($productId)
     {
-        $product = $this->_productloader->create()->load(14120);
-        $height = $product->getHeight();
-        $width = $product->getWidth();
-        $lenght = $product->getLenght();
+        $product = $this->_productloader->create()->load($productId);
+        $height = $product->getKitHeight();
+        $width = $product->getKitWidth();
+        $lenght = $product->getKitLength();
         $totDem = ($height * $width * $lenght)/1000;
-        // die;
         return $totDem;
     }
 

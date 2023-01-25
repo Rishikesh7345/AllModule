@@ -168,12 +168,12 @@ class RemoveFromBox extends Action
                             $item->save();
                             continue;
                         }
-                        // if ($item->getBoxType() != 'yes'){
-                        //     $item->setBoxType(null);
-                        //     $item->getKitProductSize(null);
-                        //     $item->save();
-                        //     continue;
-                        // }
+                        if ($item->getBoxType() != 'yes'){
+                            $item->setBoxType(null);
+                            $item->getKitProductSize(null);
+                            $item->save();
+                            continue;
+                        }
                     }
                 }
             

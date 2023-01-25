@@ -142,7 +142,7 @@ require(
                     checkNo = 1;
                     proDim.push(proDimVal);
                   
-                    $qtyInput = $(this).find('.qty-input').val()
+                    $qtyInput = $(this).find('.qty-input').val();
                     
                     if($qtyInput == '0'){
                         checkNo=0;
@@ -423,9 +423,10 @@ require(
 
                         success: function (data) {
                             if (data.success == "true") {
-                                location.reload();
                                 $("#submit").prop("disabled", true);
+                                location.reload();                                
                                 hideOptionFun();
+                          
                             }
                         },
                         error: function (xhr, status, errorThrown) {
@@ -452,8 +453,10 @@ require(
 
                         success: function (data) {
                             if (data.success == "true") {
+                       
+                                $("#submit").prop("disabled", true);
                                 location.reload();                             
-                                $("#submit").prop("disabled", false);
+                                
                             }
                         },
                         error: function (xhr, status, errorThrown) {
@@ -465,7 +468,7 @@ require(
                 }
             }else{
                 $("#proQty").show();
-                alert("Please enter box size qty")
+
             }
         });
 
@@ -563,7 +566,7 @@ require(
             var boxName = $(this).find(".boxName").val();
             var boxId = $(this).find(".boxId").val();
             $(".existBoxName").val(boxName);
-
+            $(".edit_build_box_3").find(".box-title-name").html(boxName);
             $.ajax({
                 type: "post",
                 url: url.build('buildbox/boxedit/editproid'),
@@ -586,12 +589,15 @@ require(
                     $(".del_popup").find("#continue-button").addClass("editContinueBtn");
                    				
                     editRespsection();
+                    validateQty();
                 },
                 error: function (xhr, status, error) {
                     console.error(xhr);
                 }
             });
         });
+
+        
 
         $(".edit-next1").on('click', function (e) {
             var proDim = [];
@@ -600,6 +606,7 @@ require(
             var selectedProId ='';
             var storeProId=[];
             $("#editRespSection").find('.product-list').each(function () {
+				alert('fsjfl');
                 //get values
                 cartProduId = '';
                 if ($(this).find('.proDimVal').prop('checked') == true) {  
@@ -615,16 +622,28 @@ require(
                     $(".boxEdit").find("#editErrMsg-1").hide();
                     checkNo = 1;
                     proDim.push(proDimVal);
-
+                    $(this).find('.qty-input').val(1);        alert("sld");
                 }
-                else {
+                else {        
+                    $(this).find('.qty-input').val(0);            
                     checkNo = $(".edit_build_box_1").find('input[type="checkbox"]:checked').length;
                     if (checkNo == 0) {
                         $(".boxEdit").find("#editErrMsg-1").show();
                     }
                 }
             });
-            console.log(storeProId);
+
+
+            // validate each product in edit product qty field 
+            $(".edit_build_box_1").find(".qty-input").keyup(function(){
+                var regex = /^\d*[.]?\d*$/;
+                var qtyforbox = $(this).val();               
+                if(!regex.test(qtyforbox)){
+                    qtyforbox=''
+                    return false;
+                }
+            }) 
+
             editMinQty = Math.min.apply(Math,editProQty);
             $("#editBoxQty").val(editMinQty);
             if (checkNo != 0) {
@@ -684,7 +703,12 @@ require(
 						$(this).find("#prodCartQty").val(res);
 					}
 
+                    // if($("#editRespSection").find(".product-list").has(".selected")){
+                        $(this).find('.qty-input').val(1);
+                    // }
+
 				} else {
+                    $(this).find('.qty-input').val(0);
 					$(this).removeClass("selected");
 					if(countBoxPro == 1){
 					  countBoxPro -= 1;
@@ -777,15 +801,46 @@ require(
             });
 
            $("#StoreEditProQty").val(SelectedStoreQty);
-            var isValid = $("#respProDetails").find("input[name='child_product']");
-            if (isValid.length != 0) {
-                if (isValid.is(":checked") != true) {
-                    $(".edit_submit_button").find("#selectError").show();
+           if($("#respProDetails").find("#totalQty").val() != 0){
+                var isValid = $("#respProDetails").find("input[name='child_product']");
+                if (isValid.length != 0) {
+                    if (isValid.is(":checked") != true) {
+                        $(".edit_submit_button").find("#selectError").show();
+                    } else {
+                        var form = $('#editBoxProdct')[0];
+                        $(".edit_submit_button").find("#selectError").show();
+                        // Create an FormData object 
+                        var data = new FormData(form);
+                        $("#submit").prop("disabled", true);
+                        $.ajax({
+                            enctype: 'multipart/form-data',
+                            type: "POST",
+                            url: url.build('buildbox/boxedit/editboxsave'),
+                            data: data,
+                            processData: false,
+                            contentType: false,
+                            cache: false,
+                            dataType: 'json',
+                            showLoader: true,
+                            success: function (data) {
+                                if (data.success == "true") {
+                                    location.reload();
+                                    $("#submit").prop("disabled", true);
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                console.log('Error happens. Try again.');
+                                $("#submit").prop("disabled", false);
+                            }
+                        });
+                    }
                 } else {
+                    $(".edit_submit_button").find("#selectError").hide();
                     var form = $('#editBoxProdct')[0];
                     $(".edit_submit_button").find("#selectError").show();
                     // Create an FormData object 
                     var data = new FormData(form);
+                
                     $("#submit").prop("disabled", true);
                     $.ajax({
                         enctype: 'multipart/form-data',
@@ -808,36 +863,12 @@ require(
                             $("#submit").prop("disabled", false);
                         }
                     });
+                   
+                    $("#editProQty").hide();
                 }
-            } else {
-                $(".edit_submit_button").find("#selectError").hide();
-                var form = $('#editBoxProdct')[0];
-                $(".edit_submit_button").find("#selectError").show();
-                // Create an FormData object 
-                var data = new FormData(form);
-            
-                $("#submit").prop("disabled", true);
-                $.ajax({
-                    enctype: 'multipart/form-data',
-                    type: "POST",
-                    url: url.build('buildbox/boxedit/editboxsave'),
-                    data: data,
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    dataType: 'json',
-                    showLoader: true,
-                    success: function (data) {
-                        if (data.success == "true") {
-                            location.reload();
-                            $("#submit").prop("disabled", true);
-                        }
-                    },
-                    error: function (xhr, status, errorThrown) {
-                        console.log('Error happens. Try again.');
-                        $("#submit").prop("disabled", false);
-                    }
-                });
+            }else{
+
+                $("#editProQty").show();
             }
         });
 
@@ -1035,10 +1066,9 @@ require(
             calculateTotQty();
             var checkLentotQty = true;
             $("#respProId").find(".kitProQty").on("keyup", function() {
+                $("#proQty").hide();
                 var kitProQty = $(this).val();
-                console.log(kitProQty);
-                console.log("kitProQty",this.value,'==',$(this).attr("KitConfProId"));
-
+               
                 $.ajax({
                     type: "post",
                     url: url.build('buildbox/submit/checkproductqty'),
@@ -1048,8 +1078,15 @@ require(
                     },
                     cache: false,
                     showLoader: true,
-                    success: function (data) {    
-                        console.log(data);
+                    success: function (data) { 
+                        if(data.success != "true"){
+                            $(".qtyNotValide").show();
+                            $(".qtyNotValide").html(data);
+                            $("#submit").prop('disabled', true);
+                        }else{
+                            $("#submit").prop('disabled', false);
+                            $(".qtyNotValide").hide();
+                        }
                     }
                 })
                 calculateTotQty();
@@ -1064,7 +1101,16 @@ require(
                 var sumQty = 0;
                 //iterate through each textboxes and add the values
                 $("#respProId").find(".kitProQty").each(function() {
-					
+					var invalidQty = $("#invalidQty").val();
+                    var proQty = $("#invalidQty").attr("productqty");
+                    console.log($(this)<= proQty);
+                    if($(this)<= proQty){
+                        $(".qtyNotValide").show();
+                        $(this).css("background-color", "yellow");              
+                    }else{    
+                        $(this).css("background-color", "red");
+                        $(".qtyNotValide").show();
+                    }
                     //add only if the value is number                    
                     if (!isNaN($(this).val()) && $(this).val().length != 0) {
                         sumQty += parseInt(this.value);                        
@@ -1075,16 +1121,15 @@ require(
 							
 						}
                     }
-                    else if ($(this).val().length != 0){
-                       
+                    else if ($(this).val().length != 0){                       
                         $(this).css("background-color", "red");
                     }
                     
                 });
+                
 				var jsonQty= JSON.stringify(QtyObj);
 				$("#kitConfChildQtyId").val(jsonQty);
                 $('#totalQty').val(sumQty);
-            
             }            
         }
         
@@ -1093,10 +1138,10 @@ require(
          */
 
         function showEditKitQty(){
-            alert("jslfs");
             calculateTotQty();
             var checkLentotQty = true;
             $("#respProDetails").find(".kitProQty").on("keyup", function() {
+                $("#editProQty").hide();
                 var kitProQty = $(this).val();
                 console.log(kitProQty);
                 console.log("kitProQty",this.value,'==',$(this).attr("KitConfProId"));
@@ -1121,7 +1166,6 @@ require(
 
             function calculateTotQty() {
                 var storeKitItemQty = $("#storeKitItemQty").val();
-                //alert(storeKitItemQty);
                 var QtyObj = {};
                 
                 var sumQty = 0;
@@ -1165,10 +1209,10 @@ require(
         })
       }
 
-    //   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      $("#shopping-box-table").find(".removeBtn").click(function(){
-        var boxItemId = $(this).attr("boxItemId");
-        var confBoxId= $("#confBoxId").attr("confBoxsId");
+        //   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        $("#shopping-box-table").find(".removeBtn").click(function(){
+            var boxItemId = $(this).attr("boxItemId");
+            var confBoxId= $("#confBoxId").attr("confBoxsId");
             $.ajax({
                 type: "post",
                 url: url.build('buildbox/remove/removefrombox'),
@@ -1183,9 +1227,9 @@ require(
                     console.log(data)                      
                 }
             })  
-      })
+        })
 
-      $(".build_box_step_2").find(".prodQtysec").click(function (e) {
+        $(".build_box_step_2").find(".prodQtysec").click(function (e) {
             e.preventDefault();
             e.stopPropagation();
         });
@@ -1203,6 +1247,27 @@ require(
 			}
         });
 
+        //Edit Qty validator
+        function validateQty(){
+            $(".edit_build_box_1").find(".prodQtysec").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            $(".edit_build_box_1").find(".qty-input").keypress(function (e) {
+                var regex = /^\d*[.]?\d*$/;
+                var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+
+                if (regex.test(str)) {
+                    return true;
+                }
+                else
+                {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+        }
         var priceFormat = {
             decimalSymbol: '.',
             groupLength: 3,

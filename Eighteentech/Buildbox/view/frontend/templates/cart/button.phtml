@@ -346,9 +346,10 @@ if ($block->getItemsCount()): ?>
                             <h4> <?= /** @noEscape */ __('Per Box Price: ') ?><span id="parPrice"></span></h4>
                             <h4> <?= /** @noEscape */ __('Total Box price: ') ?><span id="totPrice"></span></h4>
                         </div>
-                        <?php }?>                        
+                        <?php }?>
                 </div>               
                 <div class="box-btn submit_button">
+                    <p class="qtyNotValide"></p>
                     <p id="proQty" class="error">Please enter minimum 1 qty of kit product.</p>
                     <p id="selectError1" class="error">Please Select item for Box.</p>
                     <a href="#" class="pre-btn4"><?= /** @noEscape */ __('Back') ?></a>
@@ -414,14 +415,13 @@ if ($block->getItemsCount()): ?>
         </div>
 
         <div class="edit_build_box edit_build_box_2" data-index="3">
-                <p class="nameofkit" style="display:flex">
+                <p class="nameofkit" style="display:none">
                     <input type="hidden" name="cartSelectedPro" id="cartSelectedPro" />
                     <span class="kit-name">Name of the Kit: </span>
                     <span class="box-title-name"></span>
                 </p>
-            <hr>
-            <h2> 
-            <?= /** @noEscape */ __('Select any one type of box you want!') ?></h2> 
+            <div> 
+            <?= /** @noEscape */ __('Select any one type of box you want!') ?></div> 
             <div class="product-cart2-box"> 
                 <div class="product-cart-box carousel-wrap"> 
                     <div id="editResponse"></div>
@@ -476,6 +476,8 @@ if ($block->getItemsCount()): ?>
             </div>               
             <div class="box-btn edit_submit_button">
                 <p id="selectError1" class="error1" style="display:none;">Please Select item for Box.</p>
+                <p class="qtyNotValide"></p>
+                <p id="editProQty" class="error">Please enter minimum 1 qty of kit product.</p>
                 <a href="#" class="pre-btn3"><?= /** @noEscape */ __('Back') ?></a>   
                 <input type="hidden" name="SelectedStoreQty[]" id="StoreEditProQty" />               
                 <button id="save-change"><?= /** @noEscape */ __('Save') ?></button>

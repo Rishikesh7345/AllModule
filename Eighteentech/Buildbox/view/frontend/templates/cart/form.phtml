@@ -108,17 +108,7 @@ $boxItemId = '';
                     }
                 }else{
                     if ($_items->getKitProductSize() != '') {
-                        
-                        if($ifSize==true || $i){
-                            
-                           $storeSize = $itemSize[0][$i];
-                           $ifSize =false;
-                        }
-                        $i++;
-                        
-
-
-                   
+                           $storeSize = $_items->getKitProductSize();                     
                         ?>
                         <tr>
                             <td colspan="7">
@@ -126,24 +116,81 @@ $boxItemId = '';
                             </td>
                         </tr>
                        <tr>
-                           <td>                                
-                               <div class="BoxName"> 
-                                   <h3> 
-                                       <span id="box-name">
-                                           <?= /* @noEscape */ $kitBoxName ."-". $storeSize ?>
-                                           <input type="hidden" name="box-name" 
-                                           value="<?= /* @noEscape */ $kitBoxName ?>"/>
-                                        </span>
-                                    </h3>
+                           <td> 
+                                <div class="product_edit">                               
+                                    <div class="BoxName"> 
+                                        <p> 
+                                            <span id="box-name">
+                                            <?= /* @noEscape */ $kitBoxName ."-". $storeSize ?>
+                                            <input type="hidden" name="box-name" 
+                                            value="<?= /* @noEscape */ $kitBoxName ?>"/>
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="edit">                 
+                                        <a href="#" id="<?= /* @noEscape */ $_item->getItemId() ?>" 
+                                        class="box-edit">
+                                            <?= /* @noEscape */ __('Edit')?>
+                                            <input
+                                                type="hidden"
+                                                name="boxName" 
+                                                class="boxName"
+                                                value="<?= /* @noEscape */ $_item->getBoxName() ?>"
+                                            >
+                                            <input
+                                                type="hidden" 
+                                                name="editProId" 
+                                                class="editProId" 
+                                                value="<?= /* @noEscape */ $_item->getProductId() ?>" 
+                                                prodItemId="<?= /* @noEscape */ $_item->getItemId() ?>"
+                                            />
+                                            
+                                            <input
+                                                type="hidden"
+                                                name="boxId"
+                                                class="boxId"
+                                                value="<?= /* @noEscape */ $_item->getId() ?>"
+                                                editProQty="<?= /* @noEscape */ $_item->getQty() ?>"
+                                            >
+                                            <input
+                                                type="hidden"
+                                                name="boxDimentions"
+                                                class="boxDimentions"
+                                                value="<?= /* @noEscape */ $_item->getProductDim() ?>"
+                                            >
+                                            <?= /* @noEscape */ $_item->getBoxweight() ?>
+                                        </a>
+                                    </div>
                                 </div>
                             </td>
+                            </tr><tr>
+                                <td></td>
                             <td><span class="totBoxPrice<?= $index?>">0</span></td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
+                            <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                            </td>
+                           
+                            <?php
+                                $sgstUtgstPercent=0;
+                                $sgstUtgstAmount=0;
+                                if($_item->getSgstPercent()>0){
+                                    $sgstUtgstPercent=$_item->getSgstPercent();
+                                    $sgstUtgstAmount=$_item->getSgstAmount();
+                                }
+                                else{
+                                    $sgstUtgstPercent=$_item->getUtgstPercent();
+                                    $sgstUtgstAmount=$_item->getUtgstAmount();
+                                }
+                            ?>
+                            <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                            <span class="price"><?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?></span><br>Rate:<?= round($sgstUtgstPercent ?? 0,2);?>%
+                            </td>
+                            <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_items->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_items->getIgstPercent() ?? 0,2);?>%</td>
                             <td> 
                                 <span class="cartqty<?= $index?>" cartQty=" <?= /* @noEscape */ $_items->getQty()?>">
                                     <?= /* @noEscape */ $_items->getQty()?>
+                                    <input id="cart-48557-qty" name="cart[<?= $_items->getItemId()?>][qty]" value="<?= $_items->getQty()?>" type="hidden" class="input-text qty">
                                 </span>
                             </td>
                             <td><span class="grandTotBoxPrice<?= $index?>">0</span></td>
@@ -170,27 +217,7 @@ $boxItemId = '';
                                                 </span>
                                             </div>                                      
                                         </div> 
-                                        <div class="edit">                 
-                                            <a href="#" id="<?= /* @noEscape */ $_item->getItemId() ?>" 
-                                            class="box-edit" >Edit
-                                            <input type="hidden" name="boxName" 
-                                            class="boxName" value="<?= /* @noEscape */ $_item->getBoxName() ?>"
-                                            >
-                                            <input type="hidden" 
-                                                name="editProId" 
-                                                class="editProId" 
-                                                value="<?= /* @noEscape */ $_item->getProductId() ?>" 
-                                                prodItemId="<?= /* @noEscape */ $_item->getItemId() ?>"
-                                                />
-                                            
-                                            <input type="hidden" name="boxId" 
-                                            class="boxId" value="<?= /* @noEscape */ $_item->getId() ?>" 
-                                            editProQty="<?= /* @noEscape */ $_item->getQty() ?>">
-                                            <input type="hidden" name="boxDimentions" 
-                                            class="boxDimentions" value="<?= /* @noEscape */ $_item->getProductDim() ?>">
-                                            <?= /* @noEscape */ $_item->getBoxweight() ?>
-                                            </a>
-                                        </div>
+                                       
                                         <div class="box-edit-action">                     
                                             <h4 id="removeBtn" class="removeBtn" boxItemId="<?= $_items->getProductId()?>" ><span>Edit</span> </h4>
                                         </div>                               
@@ -202,9 +229,28 @@ $boxItemId = '';
                                  <?= /* @noEscape */ $block->formatPrice($_items->getPrice(),true)?>
                                 </span>
                             </td>
-                            <td class="col-price cgst">0</td>
-                            <td class="col-price sgst">0</td>
-                            <td class="col-price gst">0</td>
+
+                            <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                            </td>
+                           
+                            <?php
+                                    $sgstUtgstPercent=0;
+                                    $sgstUtgstAmount=0;
+                                    if($_item->getSgstPercent()>0){
+                                        $sgstUtgstPercent=$_item->getSgstPercent();
+                                        $sgstUtgstAmount=$_item->getSgstAmount();
+                                    }
+                                    else{
+                                        $sgstUtgstPercent=$_item->getUtgstPercent();
+                                        $sgstUtgstAmount=$_item->getUtgstAmount();
+                                    }
+                            ?>
+                            <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                            <span class="price"><?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?></span><br>Rate:<?php echo round($sgstUtgstPercent ?? 0,2);?>%
+                            </td>
+                            <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_item->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getIgstPercent() ?? 0,2);?>%</td>
                             <td class="col qty">
                                 <span class="cart_prodeachqty">
                                    <?= /* @noEscape */ $_items->getProductQtyEachBox()?>
@@ -283,9 +329,27 @@ $boxItemId = '';
                                     </span>
                                 </td>
 
-                                <td class="col-price cgst">0</td>
-                                <td class="col-price sgst">0</td>
-                                <td class="col-price">0</td>
+                                <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                            </td>
+                           
+                            <?php
+                                    $sgstUtgstPercent=0;
+                                    $sgstUtgstAmount=0;
+                                    if($_item->getSgstPercent()>0){
+                                        $sgstUtgstPercent=$_item->getSgstPercent();
+                                        $sgstUtgstAmount=$_item->getSgstAmount();
+                                    }
+                                    else{
+                                        $sgstUtgstPercent=$_item->getUtgstPercent();
+                                        $sgstUtgstAmount=$_item->getUtgstAmount();
+                                    }
+                            ?>
+                            <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                            <span class="price"><?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?></span><br>Rate:<?php echo round($sgstUtgstPercent ?? 0,2);?>%
+                            </td>
+                            <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_item->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getIgstPercent() ?? 0,2);?>%</td>
                                 <td class="col qty">
                                     <span class="cart_prod_eachqty">
                                        <?= /* @noEscape */ $qty = $item->getProductQtyEachBox() == null ? 1 : $item->getProductQtyEachBox()?>

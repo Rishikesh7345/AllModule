@@ -165,11 +165,10 @@ class EditProid extends Action
             $product = $this->_productloader->create()->load($item->getProductId());
             $productType= $item->getProductType();
             $editItemId = $item->getItemId();
-            $height = $product->getHeight();
-            $width = $product->getWidth();
-            $lenght = $product->getLenght();
-            // $dimension = ($height * $width * $lenght)/1000;
-            $dimension = (10 * 15 * 25)/1000;
+            $height = $product->getKitHeight();
+            $width = $product->getKitWidth();
+            $lenght = $product->getKitLength();
+            $dimension = ($height * $width * $lenght)/1000;
 
             if ($product->getProdinbox() == true) {
                 if($productType == 'configurable'){
@@ -191,7 +190,7 @@ class EditProid extends Action
                             if ($proditemid == $item->getBoxItemId()) {
                                 $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
                                     prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
-                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" checked> ';
+                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" > ';
                             } else {
                                 $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
                                 prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
