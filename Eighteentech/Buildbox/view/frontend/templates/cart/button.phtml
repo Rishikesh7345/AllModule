@@ -117,6 +117,9 @@ if ($block->getItemsCount()): ?>
                             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
                          
                             $productimages1 = [];
+                            $childProductQty = [];
+                            $storeProdQty = '';
+                            $childProQtyJson='';
                             $productimages1 = $block->getCartImage($cartProId);
                             $dimension = $block->getDimension($cartProId);
                             //  check product for box
@@ -124,23 +127,28 @@ if ($block->getItemsCount()): ?>
                             if ($productForBox == 1) {
                                 if ($cartItem->getBoxId() != 1 &&
                                 $cartItem->getPrice() != 0 && $cartItem->getBoxType() === null) {
+                                    
                                     $dimension = $block->getDimension($cartProId);                                   
                                     
                                     if($productType == 'configurable'){
                                       
                                         $product = $objectManager->create('Magento\Catalog\Model\Product')->load($cartProId);
-                                       
+                                        
                                         if($product->getId() == $cartProId && $checkConfigProd == true){
-
+                                            
                                             foreach($block->getItems() as $childItem){
                                                 if($childItem->getProductId() == $product->getId()){
                                                   $storeKitProId[] = $childItem->getItemId();
-                                                  $storeKitItemQty += $childItem->getQty();
+                                                  $storeKitItemQty += $childItem->getQty(); 
+                                                  $storeProdQty =$childItem->getQty();                                               
+                                                }
+                                                if($childItem->getParentItemId() != ''){
+                                                  $childProductQty[$childItem->getProductId()] = $storeProdQty;
                                                 }
                                             }
+                                            $storeKitProId = base64_encode(serialize($storeKitProId)); 
+                                            $childProQtyJson = base64_encode(serialize($childProductQty));
                                            
-                                            // die;
-                                            $storeKitProId = base64_encode(serialize($storeKitProId));  
                                         ?>
                                     <div class="product-list">
 
@@ -154,7 +162,7 @@ if ($block->getItemsCount()): ?>
                                         <input type="hidden" name="selectKitProId[]" value="<?= /* @noEscape */ $storeKitProId ?>" id="storeKitProId">
                                         <input type="hidden" name="storeKitItemQty" value="<?= /* @noEscape */ $storeKitItemQty ?>" id="storeKitItemQty">
                                         <input type="hidden" name="prodDim[]" value="<?= /* @noEscape */ $dimension?>"/>
-
+                                        <input type="hidden"  name="childProductQty" value="<?= /* @noEscape */ $childProQtyJson ?>" id="childProQtyJson" />
                                         <input 
                                            type="hidden"
                                            name="prodName[]" 
@@ -193,8 +201,10 @@ if ($block->getItemsCount()): ?>
                                                 name="prodQtyForBox[]" 
                                                 id="prodQtyForBox" class="qty-input"
                                                 width="45px"
+                                                prodTypeForBox="<?= /* @noEscape */ $cartItem->getProductType()?>"
+                                                prodIdForBox="<?= /* @noEscape */ $cartItem->getProductId()?>"
                                                 value="0"
-
+                                                disabled                                                      
                                             />
                                             <p style='color: red; display:none' class='eachQty'>
                                                 <?= /** @noEscape */ __('Please add minimum 1 qty')?>
@@ -251,6 +261,8 @@ if ($block->getItemsCount()): ?>
                                                 id="prodQtyForBox"
                                                 class="qty-input"
                                                 width="45px"
+                                                prodTypeForBox="<?= /* @noEscape */ $cartItem->getProductType()?>"
+                                                prodIdForBox="<?= /* @noEscape */ $cartItem->getProductId()?>"
                                                 value="0"
                                             />
                                             <p style='color: red;display:none' class='eachQty'>
@@ -342,7 +354,7 @@ if ($block->getItemsCount()): ?>
                 <div class="perBoxSection">
                     
                    <?php if ($checkProductInCart != 1) {?>                       
-                        <div class="perBoxPrice">
+                        <div class="perBoxPrice" style="display:none">
                             <h4> <?= /** @noEscape */ __('Per Box Price: ') ?><span id="parPrice"></span></h4>
                             <h4> <?= /** @noEscape */ __('Total Box price: ') ?><span id="totPrice"></span></h4>
                         </div>
@@ -389,13 +401,12 @@ if ($block->getItemsCount()): ?>
     </div>
 </div>
 
-
+<!-- Edit box  -->
 <div id="edit-box">
     <form method="post" id="editBoxProdct" enctype="multipart/form-data">
         <div class="edit_build_box edit_build_box_1" >
             <h3> 
-                <?= /** @noEscape */ __('Select the products per box!( 
-                <span class="pro-select">0</span> selected)') ?>
+                <?= /** @noEscape */ __('Please select from the below items that you want in the kit and the quantity of each item per kit')?>
             </h3>
            <div class="product-cart4-box">
                <div id="resEdit"></div>
@@ -486,4 +497,4 @@ if ($block->getItemsCount()): ?>
     </form>
 </div>
 
-<?php endif; ?>
+<?php endif;?>

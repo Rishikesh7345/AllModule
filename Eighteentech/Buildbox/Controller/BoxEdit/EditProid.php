@@ -157,6 +157,8 @@ class EditProid extends Action
         $html = '';
         $editItemId=$storeKitItemQty = 0;
         $storeKitProId=[];
+        $childProductQty = [];
+        $storeProdQty = '';
         $checkConfigProd = true; 
         $html = '<div style="display:flex;" >';
         foreach ($items as $item) {
@@ -172,25 +174,34 @@ class EditProid extends Action
 
             if ($product->getProdinbox() == true) {
                 if($productType == 'configurable'){
+                   echo $proditemid .'=='. $item->getBoxItemId();
                     if($proditemid == $item->getBoxItemId() || $item->getBoxItemId() == null) {
+                        echo "22222====1222";
                         $product = $objectManager->create('Magento\Catalog\Model\Product')->load($item->getProductId());
                                        
                         if($product->getId() == $item->getProductId() && $checkConfigProd == true){
+                            echo "@@@====@@@";
                             $items = $this->_session->getQuote()->getAllItems();
                             foreach($items as $childItem){
                                 if($childItem->getProductId() == $product->getId()){
                                   $storeKitProId[] = $childItem->getItemId();
                                   $storeKitItemQty += $childItem->getQty();
+                                  $storeProdQty =$childItem->getQty();                                               
+                                }
+                                if($childItem->getParentItemId() != ''){
+                                  $childProductQty[$childItem->getProductId()] = $storeProdQty;
                                 }
                             }
+
                             $storeKitProId = base64_encode(serialize($storeKitProId));  
-                        
+                            $childProQtyJson = base64_encode(serialize($childProductQty));
                             $imageUrl = $this->getImageUrl($product, 'product_page_image_small');
                             $html .= '<div class="product-list">';
                             if ($proditemid == $item->getBoxItemId()) {
+                                // if ($item->getBoxItemId() == '') {
                                 $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
                                     prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
-                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" > ';
+                                    data-pro-id="'.$item->getProductId().'" class="proDimVal" checked> ';
                             } else {
                                 $html .='<input type="checkbox" name="getItem[]" value="'.$editItemId.'" 
                                 prod-qty="'.$item->getQty().'" data-dim="'.$dimension .'" 
@@ -200,7 +211,7 @@ class EditProid extends Action
                             $html .= '
                             <input type="hidden" name="selectKitProId[]" value="'.$storeKitProId .'" id="storeKitProId">
                             <input type="hidden" name="storeKitItemQty" value="'. $storeKitItemQty .'" id="storeKitItemQty">
-
+                            <input type="hidden"  name="childProductQty" value="'.$childProQtyJson.'" id="childProQtyJson" />
                             <input type="hidden" name="prodDim[]" value="'.$dimension.'">
                             <input type="hidden" name="productItemId" value="'.$proditemid.'">                               
                             <input type="hidden" name="product-qty[]" class="product-qty" 
@@ -227,7 +238,11 @@ class EditProid extends Action
                                         class="qty-input"
                                         width="45px"
                                         value="0"
+                                        prodIdForBox="'.$item->getProductId().'"
+                                        prodTypeForBox="'.$item->getProductType().'"
+                                        disabled
                                     />
+                                  
                                     <p style="color: red;display:none" class="eachQty">
                                        Please add minimum 1 qty
                                     </p>
@@ -237,6 +252,7 @@ class EditProid extends Action
                         $checkConfigProd = false; 
                     }
                 }else {
+                    echo "sldfjsd";
                     if($item->getPrice() != 0){
                     $imageUrl = $this->getImageUrl($product, 'product_page_image_small');
                     $html .= '<div class="product-list">';
@@ -277,6 +293,8 @@ class EditProid extends Action
                                         class="qty-input"
                                         width="45px"
                                         value="0"
+                                        prodIdForBox="'.$item->getProductId().'"
+                                        prodTypeForBox="'.$item->getProductType().'"
                                     />
                                     <p style="color: red;display:none" class="eachQty">
                                        Please add minimum 1 qty

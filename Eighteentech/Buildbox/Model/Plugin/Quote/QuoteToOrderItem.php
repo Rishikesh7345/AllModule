@@ -36,6 +36,8 @@ class QuoteToOrderItem
         $orderItem->setBoxProductId($item->getBoxProductId());
         $orderItem->setBoxName($item->getBoxName());
         $orderItem->setBoxItemId($item->getBoxItemId());
+        $orderItem->setKitProductSize($item->getKitProductSize());
+        $orderItem->setProductQtyEachBox($item->getProductQtyEachBox());
         return $orderItem;
     }
 }

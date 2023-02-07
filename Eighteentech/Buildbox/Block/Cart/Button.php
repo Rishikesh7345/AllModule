@@ -402,6 +402,7 @@ class Button extends Template
         $width = $product->getKitWidth();
         $lenght = $product->getKitLength();
         $totDem = ($height * $width * $lenght)/1000;
+        
         return $totDem;
     }
 

@@ -140,8 +140,11 @@ class Proid extends Action
     {
         $result = $this->resultRawFactory->create();
         $post = $this->getRequest()->getPostValue();
-        // print_r($post);
-        // die;
+        
+        if(isset($post['childProQtyJson'])){
+            $childProQtyarr = unserialize(base64_decode($post['childProQtyJson']));
+        }
+
         if(isset($post['selectKitProId'])){
             $postvalue = unserialize(base64_decode($post['selectKitProId']));
 
@@ -153,74 +156,77 @@ class Proid extends Action
         $html='';
         $proInfo='';
 
-        $SQty = $MQty = $LQty = $XSQty = $XLQty = $XXLQty = 0;
         $storeQty = $configProSize = [];
         $sizeOp = '';
-        $blockS = $blockM = $blockL = $blockXS = $blockXL = $blockXXL = "none";
-        $KitConfProIdS = $KitConfProIdM = $KitConfProIdL =  $KitConfProIdXS = $KitConfProIdXL = $KitConfProIdXXL = 0;
-        
         $productInfo = $this->_cart->getQuote()->getItemsCollection();
         $BoxName='';
+        $yesNo = 'yes';
+        $hideSection = 'no';
         $arrProSize = [];
         $proInfo .='
        <div class="selected-pro-details">
            <div class="selected-pro-name">
              <span class="title">Contains-</span>';
-            foreach ($productInfo as $item){
-             
+            foreach ($productInfo as $item){                
                  if($item->getBoxId() == '1'){
                     $BoxName= $item->getBoxName();
                  }
                 if (in_array($item->getId(), $cartSelectedPro))
                 {                    
-                    $proInfo .='
+
+                     $proInfo .='
                     <span class="name" boxname="'.$BoxName.'">'.$item->getName().',</span>';
-                    
                     if($item->getProductType() == 'configurable'){
-                        $ifyes=1;
+                       
                         $parentProduct = $this->_productloader->create()->load($item->getProductId());
+                        
+                        
                         $storeId = $this->storeManager->getStore()->getId();
                         $productTypeInstance = $parentProduct->getTypeInstance();
                         $productTypeInstance->setStoreFilter($storeId, $parentProduct);
                         $usedProducts = $productTypeInstance->getUsedProducts($parentProduct);
-                        // $productAttributeOptions = $parentProduct->getTypeInstance(true)
-                        // ->getConfigurableAttributesAsArray($parentProduct);
                         $productInfo = $this->_cart->getQuote()->getItemsCollection();
                         $proInfo .='<table>
                                 <tr class="config-coll">
                                     <th width="250px">Size Of '. $item->getName() .'</th>
                                     <th>Quantity</th>
                                 </tr>';
-                                // echo $item->getQty()."\n";   
-                        foreach($productInfo as $childItem){ 
-                            if($childItem->getParentItemId() == $item->getItemId()){
-                                echo $childItem->getProductId()."\n";   
-                                echo $childItem->getQty();                             
-                            }
-                            if($ifyes != 0) {
-                               foreach($usedProducts as $childItemOp){
-                                    echo $childItemOp->getId()."\n";
-                                  $psize = $this->getOptionLabelByValue("size",$childItemOp->getSize());
-                                    $configProSize[] = $psize;
-                                    $arrProSize[$childItemOp->getId()] = $psize;
-                                    $proInfo .='
-                                    <tr class="config-coll">
-                                        <td><span>'.$psize.'</span></td>
-                                        <td>
-                                            <input type="text" 
-                                                name="kitProQty"
-                                                id="kitProQty"
-                                                class="kitProQty"
-                                                value="0"
-                                                proSize="'.$psize.'"
-                                                KitConfProId="'. $childItemOp->getId().'"
-                                            />
-                                        </td>
-                                    </tr>';
-                                }
-                            }
-                            $ifyes=0;
-                        }
+                        foreach($usedProducts as $childItemOp){                                  
+                            $psize = $this->getOptionLabelByValue("size",$childItemOp->getSize());
+                            $configProSize[] = $psize;
+                            $arrProSize[$childItemOp->getId()] = $psize;
+                            if(array_key_exists($childItemOp->getId(),$childProQtyarr)){          
+                                $proInfo .='
+                                <tr class="config-coll">
+                                    <td><span>'.$psize.'</span></td>
+                                    <td>
+                                        <input type="text" 
+                                            name="kitProQty"
+                                            id="kitProQty"
+                                            class="kitProQty"
+                                            value="'.$childProQtyarr[$childItemOp->getId()].'"
+                                            proSize="'.$psize.'"
+                                            KitConfProId="'. $childItemOp->getId().'"
+                                        />
+                                    </td>
+                                </tr>';
+                            }else{                                           
+                                $proInfo .='
+                                <tr class="config-coll">
+                                    <td><span>'.$psize.'</span></td>
+                                    <td>
+                                        <input type="text" 
+                                            name="kitProQty"
+                                            id="kitProQty"
+                                            class="kitProQty"
+                                            value="0"
+                                            proSize="'.$psize.'"
+                                            KitConfProId="'. $childItemOp->getId().'"
+                                        />
+                                    </td>
+                                </tr>';                                           
+                            }                                        
+                        }                           
                         $proInfo .='
                             <tr class="config-coll">
                                 <td>Total Price</td>
@@ -233,10 +239,36 @@ class Proid extends Action
                             </tr>
                         </table>
                        ';
+                       $hideSection ='yes';
                     }
+                    
                 }
             }
-        
+            if($hideSection != 'yes'){
+            foreach ($productInfo as $item){
+
+                if(in_array($item->getId(), $cartSelectedPro) && $item->getProductType() != 'configurable'){
+                    if($yesNo == 'yes'){                        
+                        $proInfo .=' 
+                            <div style="display:flex">
+                                <p><span class="name">Please Enter Quality for Kit.</span></p>
+                                <input 
+                                    type="text" 
+                                    name="kitProQty"
+                                    id="kitProQty"
+                                    class="kitProQty"
+                                    value="0"
+                                    kitconfproid="'.$post['boxId'].'"
+                                />
+                                <input type="hidden" name="totalQty" id="totalQty" value="0">
+                            </div>
+                        ';
+                        $yesNo='no';
+                    }
+                }
+                
+            }
+        }
             // print_r(array_unique($arrProSize));
     $proInfo .=' </div>
         <input type="hidden" value="'.base64_encode(serialize(array_unique($configProSize))).'" id="configProSize" name="configProSize">
@@ -261,6 +293,7 @@ class Proid extends Action
         $productImageUrl = $store->getBaseUrl(\Magento\Framework\UrlInterface::
         URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
         $totDim = ($product->getKitWidth() * $product->getKitHeight() * $product->getKitLength())/1000;
+        $moqty= $product->getMoqty()."sfj;sld";
         $product->getBoxweight();
 
         $finalPrice = $this->priceCurrency->convertAndFormat($product->getFinalPrice(), 2);
@@ -376,14 +409,17 @@ class Proid extends Action
             $addonsPrice = '';
             $product = $this->_productloader->create()->load($post['boxId']);
             $customOptions = $this->_customOptions->getProductOptionCollection($product);
-            
+          
             $html .= '
             <div class="addons-container">
-                <div class="addons-section"> ';
+                <div class="addons-section"> ';             
             foreach ($customOptions as $option) {
                 $filename = "options_".$option->getOptionId()."_file";
-                $addonsPrice = $this->priceCurrency->convertAndFormat($option->getPrice(), 2);
-                $html .= ' 
+                
+                $addonsPrice = $this->priceCurrency->convertAndFormat($option->getPrice(), 2);               
+                if($post['qtyforkit'] >= 250){
+                    
+                    $html .= ' 
                     <div class="additional">
                         <div class="optionTitle">
                             <h3>'.$option->getTitle().'</h3>
@@ -392,7 +428,7 @@ class Proid extends Action
                         <div class="optionName">
                             <div class="optionFeild">
                                 <input type="'.$option->getType().'" name="'.$filename.'" 
-                                optionId="'.$option->getId().'"/>
+                                optionId="'.$option->getId().'" addonsPrice="'.$option->getPrice().'"/>
                                 <input type="radio" name="radioSelect" class="option-field-'.$option->getId().'" 
                                 optionIdVal="'.$option->getId().'"/>                              
                                 
@@ -403,9 +439,35 @@ class Proid extends Action
                             <div class="fileExt">File Extension is Require('.$option->getFileExtension().')</div>
                         </div>
                     </div>';
+                }else{
+                    
+                    if($option->getUniqueFieldSku() != 'kit_moqty'){
+                        $html .= ' 
+                        <div class="additional">
+                            <div class="optionTitle">
+                                <h3>'.$option->getTitle().'</h3>
+                                <h4>Addons price:'.$addonsPrice.'</h4>
+                            </div>                  
+                            <div class="optionName">
+                                <div class="optionFeild">
+                                    <input type="'.$option->getType().'" name="'.$filename.'" 
+                                    optionId="'.$option->getId().'" addonsPrice="'.$option->getPrice().'"/>
+                                    <input type="radio" name="radioSelect" class="option-field-'.$option->getId().'" 
+                                    optionIdVal="'.$option->getId().'"/>                              
+                                    
+                                    <input type="hidden" name="optionProId" value="'.$post['boxId'].'"/>
+                                    <input type="hidden" name="optionId[]" value="'.$option->getOptionId().'"/>
+                                    <span class="getImgName"></span>                               
+                                </div>
+                                <div class="fileExt">File Extension is Require('.$option->getFileExtension().')</div>
+                            </div>
+                        </div>';
+                    }
+                }
             }
             $html .= ' </div>
             <input type="hidden" name="selected_option_id" id="option_id"/>
+            <input type="hidden" name="storeAddonsPrice" id="storeAddonsPrice"/>
             </div>';
         }
        

@@ -29,12 +29,12 @@ require(
                 cache: false,
                 showLoader: true,
                 success: function (data) {
-                    if(data.success != 'true'){
-                        $('.build_box_step_1').hide();
-                        $("#product_check_resp").show();
-                        // $("#modal-content").modal("openModal");
-                        $("#cart_product_resp").html(data)
-                    } else {                        
+                    // if(data.success != 'true'){
+                    //     $('.build_box_step_1').hide();
+                    //     $("#product_check_resp").show();
+                    //     // $("#modal-content").modal("openModal");
+                    //     $("#cart_product_resp").html(data)
+                    // } else {                        
                         $(".del_popup").find("#continue-button").removeClass("editContinueBtn");
                         $(".del_popup").find("#continue-button").removeClass("editContName");
                         $(".del_popup").find("#continue-button").addClass("continue-button");
@@ -45,7 +45,7 @@ require(
                         $("#modal-content").modal("openModal");
                         $('#buildbox_note_popup').show();
                         
-                    }
+                    // }
                 },
                 error: function (xhr, status, error) {
                     console.error(xhr);
@@ -123,8 +123,11 @@ require(
             var cartProduId = '';
             var prodQty = '';
             var checkNo = '';
+            var checkVal = 0;
             var proQty = [];
+            var proIdKit = {};
             var selectedProId ='';
+            
             var storeProId=[];
             $(".build_box_step_2").find('.product-list').each(function () {
                 //get values
@@ -142,18 +145,23 @@ require(
                     checkNo = 1;
                     proDim.push(proDimVal);
                   
-                    $qtyInput = $(this).find('.qty-input').val();
+                    var qtyInput = $(this).find('.qty-input').val();
+                    var prodidforbox = $(this).find('.qty-input').attr("prodidforbox");
                     
-                    if($qtyInput == '0'){
+                    if(qtyInput == 0){
                         checkNo=0;
                         if(qtyMsg =='yes' || checkNo==0 ){
                             qtyMsg='no';
-                            $(this).find('.eachQty').show();
+                            checkVal=1;
+                            
+                            $(this).find('.eachQty').show();                                             
                         }
                     }else {
-                        $(this).find('.eachQty').hide();
-                        checkNo=1;
+                        
+                        proIdKit[prodidforbox] = qtyInput;                                           
+                        $(this).find('.eachQty').hide();                        
                     }
+
                 }
                 else {                    
                     checkNo = $(".build_box_step_2").find('input[type="checkbox"]:checked').length;
@@ -162,10 +170,11 @@ require(
                     }
                 }
             });
-
-            minProQty = Math.min.apply(Math,proQty);            
+            minProQty = Math.min.apply(Math,proQty);
+            
             $("#boxQty").val(minProQty);
-            if (checkNo != 0) {
+            if (checkNo != 0 && checkVal != 1) {
+                console.log(proIdKit,' proIdKit');
                 $('input[name="cartSelectedPro"]').val(storeProId);
                 $.ajax({
                     type: "post",
@@ -174,7 +183,8 @@ require(
                         proDim: proDim,
                         cartProduId: cartProduId,
                         prodQty: prodQty,
-                        selectedProId:storeProId
+                        selectedProId: storeProId,
+                        proIdKit: proIdKit
                     }),
                     cache: false,
                     showLoader: true,
@@ -182,11 +192,15 @@ require(
                         $("#productBox").html(data);
                         $(".build_box_step_2").hide();
                         $(".build_box_step_3").show();
+                        $(this).find('.eachQty').hide();
                     },
                     error: function (xhr, status, error) {
                         console.error(xhr);
                     }
                 });
+                
+            }else{
+                $(this).find('.eachQty').show();
             }
             e.preventDefault();
         });
@@ -214,6 +228,8 @@ require(
         });
 
         $('#productBox').on('click', '.product-box', function () {
+            
+            var childProQtyJson= $('.build_box_step_2').find("#childProQtyJson").val();
             const checkBuildbox = $(this).find("input[name='choose-buildbox']");
             checkBuildbox.prop("checked", true);
             $("#productBox").find("input[name='choose-buildbox']").each(function(){
@@ -221,8 +237,6 @@ require(
             });
             if(checkBuildbox.prop('checked') == true){
                $(this).addClass("selected");
-              
-              
             }
             $('.build_box_step_3').find("#boxErrMsg").hide();
             const boxParentId = $(this).find("input[name='box_parent_Id']").val();
@@ -238,7 +252,9 @@ require(
                     boxParentId: boxParentId,
                     cartSelectedPro: cartSelectedPro,
                     selectKitProId: $('.build_box_step_2').find("#storeKitProId").val(),
-                    storeKitItemQty: $('.build_box_step_2').find("#storeKitItemQty").val()
+                    storeKitItemQty: $('.build_box_step_2').find("#storeKitItemQty").val(),
+                    childProQtyJson: childProQtyJson,
+                    qtyforkit: $("#qtyforkit").val()
                 },
                 cache: false,
                 dataType: 'html',
@@ -336,7 +352,7 @@ require(
         });
         $(".pre-btn4").on('click', function () {
             $("#respOption").html("");
-            $("#respProId").html("");
+            // $("#respProId").html("");
             $(".build_box_step_4").hide();
             $(".build_box_step_3").show();
         });
@@ -424,6 +440,7 @@ require(
                         success: function (data) {
                             if (data.success == "true") {
                                 $("#submit").prop("disabled", true);
+                                $(".pre-btn4").attr("disabled","disabled");
                                 location.reload();                                
                                 hideOptionFun();
                           
@@ -453,8 +470,8 @@ require(
 
                         success: function (data) {
                             if (data.success == "true") {
-                       
-                                $("#submit").prop("disabled", true);
+                                $("#pre-btn4").prop("disabled", true);
+                                $(".pre-btn4").attr("disabled","disabled");
                                 location.reload();                             
                                 
                             }
@@ -474,6 +491,8 @@ require(
 
         // After choose color option 
         $('#respProId').on('change', '.childProOption', function () {
+            let qtyforkit = $(".build_box_step_3").find("#qtyforkit").val();
+            
             isValid = $("#respProId").find("input[name='child_product']").is(":checked");
             if (isValid == true) {
                 $("#submit").prop("disabled", false);
@@ -484,7 +503,8 @@ require(
                     type: "POST",
                     url: url.build('buildbox/submit/getproductoption'),
                     data: {
-                        childOpId: childOpId
+                        childOpId: childOpId,
+                        qtyforkit: qtyforkit
                     },
                     cache: false,
                     dataType: 'html',
@@ -596,17 +616,17 @@ require(
                 }
             });
         });
-
-        
-
+       
         $(".edit-next1").on('click', function (e) {
             var proDim = [];
             var prodQty = '';
             var editProQty = [];
             var selectedProId ='';
             var storeProId=[];
+            var proIdKit ={};
+            var checkNo = '';
+            var checkVal = 0;
             $("#editRespSection").find('.product-list').each(function () {
-				alert('fsjfl');
                 //get values
                 cartProduId = '';
                 if ($(this).find('.proDimVal').prop('checked') == true) {  
@@ -621,11 +641,25 @@ require(
 
                     $(".boxEdit").find("#editErrMsg-1").hide();
                     checkNo = 1;
+
+                    var qtyInput = $(this).find('.qty-input').val();
+                    var prodidforbox = $(this).find('.qty-input').attr("prodidforbox");
+                    if(qtyInput == 0){
+                        checkNo=0;
+                        if(qtyMsg =='yes' || checkNo==0 ){
+                            qtyMsg='no';
+                            checkVal=1;
+                            
+                            $(this).find('.eachQty').show();                                             
+                        }
+                    }else {        
+                        proIdKit[prodidforbox] = qtyInput;                                                      
+                        $(this).find('.eachQty').hide();                        
+                    }
+
                     proDim.push(proDimVal);
-                    $(this).find('.qty-input').val(1);        alert("sld");
                 }
-                else {        
-                    $(this).find('.qty-input').val(0);            
+                else {     
                     checkNo = $(".edit_build_box_1").find('input[type="checkbox"]:checked').length;
                     if (checkNo == 0) {
                         $(".boxEdit").find("#editErrMsg-1").show();
@@ -646,7 +680,7 @@ require(
 
             editMinQty = Math.min.apply(Math,editProQty);
             $("#editBoxQty").val(editMinQty);
-            if (checkNo != 0) {
+            if (checkNo != 0 && checkVal != 1) {
                 $('.edit_build_box_2').find('input[name="cartSelectedPro"]').val(storeProId);
                 $.ajax({
                     type: "post",
@@ -655,7 +689,8 @@ require(
                         proDim: proDim,
                         cartProduId: cartProduId,
                         prodQty: prodQty,
-                        selectedProId: storeProId
+                        selectedProId: storeProId,
+                        proIdKit: proIdKit
                     }),
                     cache: false,
                     showLoader: true,
@@ -672,7 +707,19 @@ require(
             e.preventDefault();
         });
 
+        
         function editRespsection(){
+            $("#editRespSection").find('.product-list').each(function () {      ;
+                if ($(this).find('.proDimVal').prop('checked') == true) { 
+                    $(this).find('.qty-input').val(1);
+                    $(this).addClass("selected");
+                }
+                else {     
+                    $(this).removeClass("selected");              
+                    $(this).find('.qty-input').val(0);
+                }
+            });
+
 			 $(".edit_build_box").find(".pro-select").html($('input:checkbox:checked').length);
 			var countBoxPro = $('input:checkbox:checked').length;
 			var countEditBoxPro = $('input:checkbox:checked').length;
@@ -732,6 +779,7 @@ require(
 		}
 
         $('#editResponse').on('click', '.product-box', function () {
+            var childProQtyJson= $('#editRespSection').find("#childProQtyJson").val()
             const checkBuildbox = $(this).find("input[name='choose-buildbox']");
 
             checkBuildbox.prop("checked", true);
@@ -755,7 +803,9 @@ require(
                     cartSelectedPro: cartSelectedPro,
                     boxParentId: boxParentId,
                     selectKitProId: $('#editRespSection').find("#storeKitProId").val(),
-                    storeKitItemQty: $('#editRespSection').find("#storeKitItemQty").val()
+                    storeKitItemQty: $('#editRespSection').find("#storeKitItemQty").val(),
+                    childProQtyJson: childProQtyJson,
+                    qtyforkit: $("#editResponse").find("#qtyforkit").val()
                 },
                 cache: false,
                 dataType: 'html',
@@ -811,7 +861,7 @@ require(
                         $(".edit_submit_button").find("#selectError").show();
                         // Create an FormData object 
                         var data = new FormData(form);
-                        $("#submit").prop("disabled", true);
+                        $("#save-change").prop("disabled", true);
                         $.ajax({
                             enctype: 'multipart/form-data',
                             type: "POST",
@@ -825,7 +875,8 @@ require(
                             success: function (data) {
                                 if (data.success == "true") {
                                     location.reload();
-                                    $("#submit").prop("disabled", true);
+                                    $("#save-change").prop("disabled", true);
+                                    $(".edit_build_box_3").find(".pre-btn3").attr("disabled","disabled");
                                 }
                             },
                             error: function (xhr, status, errorThrown) {
@@ -840,8 +891,8 @@ require(
                     $(".edit_submit_button").find("#selectError").show();
                     // Create an FormData object 
                     var data = new FormData(form);
-                
-                    $("#submit").prop("disabled", true);
+                    
+                    $("#save-change").prop("disabled", true);
                     $.ajax({
                         enctype: 'multipart/form-data',
                         type: "POST",
@@ -855,7 +906,8 @@ require(
                         success: function (data) {
                             if (data.success == "true") {
                                 location.reload();
-                                $("#submit").prop("disabled", true);
+                                $("#save-change").prop("disabled", true);
+                                $(".edit_build_box_3").find(".pre-btn3").attr("disabled","disabled");
                             }
                         },
                         error: function (xhr, status, errorThrown) {
@@ -882,6 +934,8 @@ require(
         });
 
         $('#respProDetails').on('change', '.childProOption', function () {
+            const qtyforkit = $(".edit_build_box_3").find("#qtyforkit").val();
+
             let childOpId = $(this).val();
             $(".edit_submit_button").find("#selectError").hide();
             $("#editRespOption").html('');
@@ -889,7 +943,8 @@ require(
                 type: "POST",
                 url: url.build('buildbox/submit/getproductoption'),
                 data: {
-                    childOpId: childOpId
+                    childOpId: childOpId,
+                    qtyforkit: qtyforkit
                 },
                 cache: false,
                 dataType: 'html',
@@ -898,6 +953,7 @@ require(
                     $("#editRespOption").html(data);
                     getEditFileVal();
                     $("#submit").prop('disabled', false);
+
                 },
                 error: function (xhr, status, errorThrown) {
                     console.log('Error happens. Try again.');
@@ -916,6 +972,10 @@ require(
             }       
             $("#respOption").find('input[type="file"]').change(function(e){
 				
+                var addonsPrice=$(this).attr("addonsPrice");
+                var fileName = e.target.files[0].name;
+                alert(fileName + ' is the selected file .');
+                $("#respOption").find("#storeAddonsPrice").val(addonsPrice);
 				$(this).next('[name="radioSelect"]').prop("checked", false);
 				var a = $(this).next('[name="radioSelect"]');
 				a.prop("checked", true);
@@ -951,7 +1011,12 @@ require(
                $(".addons-section").find(".additional:nth-child(4)").hide();
             }
             $("#respProId").find('input[type="file"]').change(function(e){
-				
+
+                var addonsPrice=$(this).attr("addonsPrice");
+                var fileName = e.target.files[0].name;
+                // alert(fileName + ' is the selected file .');
+                $("#respProId").find("#storeAddonsPrice").val(addonsPrice);
+
 				$(this).next('[name="radioSelect"]').prop("checked", false);
 				var a = $(this).next('[name="radioSelect"]');
 				a.prop("checked", true);
@@ -991,6 +1056,13 @@ require(
 
 				$("#editFileErr").hide();
 				$("#respProDetails").find('input[type="file"]').change(function(e){
+
+                    var addonsPrice= $(this).attr("addonsPrice");
+                    var fileName = e.target.files[0].name;
+                    alert(fileName + ' is the selected file .');
+                    $("#respProDetails").find("#storeAddonsPrice").val(addonsPrice);
+                    $("#editFileName").html('');
+                    $(this).before(`<p id="editFileName">${fileName}</p>`);
 					$(this).next('[name="radioSelect"]').prop("checked", false);
 					var a = $(this).next('[name="radioSelect"]');					
 					a.prop("checked", true);
@@ -1065,8 +1137,10 @@ require(
 
             calculateTotQty();
             var checkLentotQty = true;
+            $(".qtyNotValide").hide();
             $("#respProId").find(".kitProQty").on("keyup", function() {
                 $("#proQty").hide();
+                $(".qtyNotValide").hide();
                 var kitProQty = $(this).val();
                
                 $.ajax({
@@ -1235,6 +1309,7 @@ require(
         });
 
         $(".build_box_step_2").find(".qty-input").keypress(function (e) {
+            
             var regex = /^\d*[.]?\d*$/;
 			var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
 			if (regex.test(str)) {
@@ -1280,32 +1355,47 @@ require(
 
         /////////calculate cart price
         var a = parseInt($("#arrIndex").val());
-        for(i=0; i<a; i++){
-        var totBoxPrice = 0;  
+        var totBoxPrice = proInboxQty = 0; 
         var BoxQty = 0;
         var grandTotal=0;
-        $('#shopping-box-table').find(`.cart_prodqty_num${i}`).each(function(){
-            if($(this).attr("cartPrice") != ''){
-                totBoxPrice += parseFloat($(this).attr("cartPrice"));                
-            }            
-        });
-        $('#shopping-box-table').find(`.cartqty${i}`).each(function(){
-            if($(this).attr("cartqty") != ''){
-                BoxQty += parseInt($(this).attr("cartqty"));                
-            }            
-        });
-
-        grandTotal = totBoxPrice * BoxQty;
+        var proInboxPrice = 0
+        var simpleKitQty = 1;
+        for(i=0; i<a; i++){
+         
         
-        $('#shopping-box-table').find(`.totBoxPrice${i}`).html(priceUtils.formatPrice(totBoxPrice, priceFormat));
-        $('#shopping-box-table').find(`.grandTotBoxPrice${i}`).html(priceUtils.formatPrice(grandTotal, priceFormat));
-
-    }   
-       
-
-
-
-
+        $('#shopping-box-table').find(`.cartConfigPrice-${i}`).each(function(){
+            if($(this).attr("cartPrice") != ''){
+                totBoxPrice = totBoxPrice + parseFloat($(this).attr("cartPrice")); 
+            }            
+        });
+        $('#shopping-box-table').find(`.cart_prodqty_num${i}`).each(function(){
+            if($(this).attr("cartprice") != ''){
+                proInboxQty = proInboxQty + parseFloat($(this).attr("cartprice")); 
+            }            
+        });
+        
+        
+        $('#shopping-box-table').find(`.cartConfigQty-${i}`).each(function(){
+            if($(this).attr("cartqty") != ''){
+                BoxQty= BoxQty + parseInt($(this).attr("cartqty"));                
+            }            
+        });       
+    }  
+    totBoxPrice = totBoxPrice + proInboxQty;
+        grandTotal = totBoxPrice * BoxQty;
+    $('#shopping-box-table').find(`.cartqty0`).html(BoxQty);
+    $('#shopping-box-table').find(`.totBoxPrice0`).html(priceUtils.formatPrice(totBoxPrice, priceFormat));
+    $('#shopping-box-table').find(`.grandTotBoxPrice0`).html(priceUtils.formatPrice(grandTotal, priceFormat));
+    
+        // simple box Calculation 
+        $('#shopping-box-table').find('.cart_prodqty_num1').each(function(){
+            proInboxPrice = proInboxPrice + parseFloat($(this).attr("cartprice")); 
+        });
+        
+        simpleKitQty = $('#shopping-box-table').find('.cartqty10').attr("cartqty");
+        
+        $('#shopping-box-table').find('.simpleTotBoxPrice0').html(priceUtils.formatPrice(proInboxPrice, priceFormat));
+        $('#shopping-box-table').find('.simpleGrandTotBoxPrice0').html(priceUtils.formatPrice((proInboxPrice*simpleKitQty), priceFormat));
         
     }
 );

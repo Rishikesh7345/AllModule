@@ -25,20 +25,28 @@
       <column xsi:type="varchar" name="box_type" nullable="true" length="255" comment="Box Type" />
       <column xsi:type="varchar" name="box_product_id" nullable="true" length="255" comment="Box Product Id" />
       <column xsi:type="varchar" name="box_item_id" nullable="true" length="255" comment="box item id" />
+      <column xsi:type="varchar" name="product_qty_each_box" nullable="true" length="255" comment="Product qty each box" />
+      <column xsi:type="varchar" name="kit_product_size" nullable="true" length="255" comment="Kit Product Size" />
    </table>
 
    <table name="sales_invoice_item">
       <column xsi:type="varchar" name="box_id" length="255" default="0" nullable="false" comment="Box ID" />
       <column xsi:type="varchar" name="box_name" nullable="false" length="255" comment="Box Name" />
-      <column xsi:type="varchar" name="box_type" nullable="true" length="255" comment="Box Type" />
+      <column xsi:type="varchar" name="box_type" nullable="true" length="255" comment="Box Type" />      
       <column xsi:type="varchar" name="box_product_id" nullable="true" length="255" comment="Box Product Id" />
+      <column xsi:type="varchar" name="box_item_id" nullable="true" length="255" comment="box item id" />
+      <column xsi:type="varchar" name="product_qty_each_box" nullable="true" length="255" comment="Product qty each box" />
+      <column xsi:type="varchar" name="kit_product_size" nullable="true" length="255" comment="Kit Product Size" />
    </table>
 
     <table name="sales_shipment_item">
-        <column xsi:type="varchar" name="box_id" length="255" default="0" nullable="false" comment="Box ID" />
+      <column xsi:type="varchar" name="box_id" length="255" default="0" nullable="false" comment="Box ID" />
       <column xsi:type="varchar" name="box_name" nullable="false" length="255" comment="Box Name" />
       <column xsi:type="varchar" name="box_type" nullable="true" length="255" comment="Box Type" />
       <column xsi:type="varchar" name="box_product_id" nullable="true" length="255" comment="Box Product Id" />
+      <column xsi:type="varchar" name="box_item_id" nullable="true" length="255" comment="box item id" />
+      <column xsi:type="varchar" name="product_qty_each_box" nullable="true" length="255" comment="Product qty each box" />
+      <column xsi:type="varchar" name="kit_product_size" nullable="true" length="255" comment="Kit Product Size" />
    </table>
 
 </schema>

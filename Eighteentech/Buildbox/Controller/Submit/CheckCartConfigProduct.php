@@ -116,46 +116,46 @@ class CheckCartConfigProduct extends Action
     public function execute()
     {
         $result = $this->resultRawFactory->create();
-        // retrieve quote items collection
-        $itemsCollection = $this->cart->getQuote()->getItemsCollection();
+        // // retrieve quote items collection
+        // $itemsCollection = $this->cart->getQuote()->getItemsCollection();
 
-        // get array of all items what can be display directly
-        $itemsVisible = $this->cart->getQuote()->getAllVisibleItems();
+        // // get array of all items what can be display directly
+        // $itemsVisible = $this->cart->getQuote()->getAllVisibleItems();
 
-        // retrieve quote items array
-        $items = $this->cart->getQuote()->getAllItems();
-        $storeId = [];
-        foreach($items as $item) {
-            if($item->getProductType() == 'configurable'){
-                $cart = $this->cart;
-                $quote = $cart->getQuote();  
-                $qouteItem = $quote->getItemById($item->getItemId());
-                if($qouteItem->getItemId() == $item->getParentItemId()){
-                    echo $item->getName();
-                }
+        // // retrieve quote items array
+        // $items = $this->cart->getQuote()->getAllItems();
+        // $storeId = [];
+        // foreach($items as $item) {
+        //     if($item->getProductType() == 'configurable'){
+        //         $cart = $this->cart;
+        //         $quote = $cart->getQuote();  
+        //         $qouteItem = $quote->getItemById($item->getItemId());
+        //         if($qouteItem->getItemId() == $item->getParentItemId()){
+        //             echo $item->getName();
+        //         }
                 
-            }
-            $parentConfigObject = $this->configurable->getParentIdsByChild($item->getProductId());
-            $id = '';
-            if (isset($parentConfigObject[0])) {
-                //set id as parent product id...
-                $id = $parentConfigObject[0];
-                $storeId[] = $id;               
-            }
+        //     }
+        //     $parentConfigObject = $this->configurable->getParentIdsByChild($item->getProductId());
+        //     $id = '';
+        //     if (isset($parentConfigObject[0])) {
+        //         //set id as parent product id...
+        //         $id = $parentConfigObject[0];
+        //         $storeId[] = $id;               
+        //     }
             
-            $product = $this->_productloader->create()->load($id);
-            $product->getTypeId();
-        }
-        $html = "";
-        if(count(array_unique($storeId)) > 1){
-            $html = "<p class='allowproduct'>Only one configurable product is allowed for Kit.</p>";
-        } else {
-            $data = ['success' => 'true', 'msg' => 'Product added to cart successfully!'];
-            $result = $this->jsonResultFactory->create();
-            $result->setData($data);
-            return $result;
-        }
-        $result->setContents($html);
-        return $result;
+        //     $product = $this->_productloader->create()->load($id);
+        //     $product->getTypeId();
+        // }
+        // $html = "";
+        // if(count(array_unique($storeId)) > 1){
+        //     $html = "<p class='allowproduct'>Only one configurable product is allowed for Kit.</p>";
+        // } else {
+        //     $data = ['success' => 'true', 'msg' => 'Product added to cart successfully!'];
+        //     $result = $this->jsonResultFactory->create();
+        //     $result->setData($data);
+        //     return $result;
+        // }
+        // $result->setContents($html);
+        // return $result;
     }
 }

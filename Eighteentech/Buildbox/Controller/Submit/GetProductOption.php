@@ -160,6 +160,8 @@ class GetProductOption extends Action
         foreach ($customOptions as $option) {
             $addonsPrice = $this->priceCurrency->convertAndFormat($option->getPrice(), 2);
             $filename = "options_".$option->getOptionId()."_file";
+
+            if($post['qtyforkit'] >= 250){
             $html .= ' 
                 <div class="additional">
                     <div class="optionTitle">
@@ -169,7 +171,7 @@ class GetProductOption extends Action
                     <div class="optionName"> 
                         <div class="optionFeild">
                             <input type="'.$option->getType().'" name="'.$filename.'"/>
-                            <input type="radio" name="radioSelect" class="option-field-'.$option->getId().'" 
+                            <input type="radio" name="radioSelect" addonsPrice="'.$option->getPrice().'" class="option-field-'.$option->getId().'" 
                             optionIdVal="'.$option->getId().'"/>
                             <span id="getFileName"></span>
                             <input type="hidden" name="optionProId" value="'.$post["childOpId"].'"/>
@@ -179,8 +181,33 @@ class GetProductOption extends Action
                     </div>
                     
                 </div>';
+            }else{
+                if($option->getUniqueFieldSku() != 'kit_moqty'){
+                    $html .= ' 
+                    <div class="additional">
+                        <div class="optionTitle">
+                            <h3>'.$option->getTitle().'</h3>
+                            <h4>Addons price:'.$addonsPrice.'</h4>
+                        </div>
+                        <div class="optionName"> 
+                            <div class="optionFeild">
+                                <input type="'.$option->getType().'" name="'.$filename.'" addonsPrice="'.$option->getPrice().'"/>
+                                <input type="radio" name="radioSelect" class="option-field-'.$option->getId().'" 
+                                optionIdVal="'.$option->getId().'"/>
+                                <span id="getFileName"></span>
+                                <input type="hidden" name="optionProId" value="'.$post["childOpId"].'"/>
+                                <input type="hidden" name="optionId[]" value="'.$option->getOptionId().'"/>
+                            </div>
+                            <div class="fileExt">File Extension is Require('.$option->getFileExtension().')</div>
+                        </div>
+                        
+                    </div>';
+                }
+            }
+            
         }
             $html .= '
+            <input type="hidden" name="storeAddonsPrice" id="storeAddonsPrice"/>
             </div>
         </div>';
         $result->setContents($html);

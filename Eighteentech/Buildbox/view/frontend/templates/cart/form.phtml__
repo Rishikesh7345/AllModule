@@ -1,0 +1,443 @@
+<?php
+/**
+ * @author 18th DigiTech Team
+ * @copyright Copyright (c) 2022 18th DigiTech (https://www.18thdigitech.com)
+ * @package Eighteentech_Buildbox
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+/**  @var $block \Magento\Checkout\Block\Cart\Grid */
+
+$isBoxFound = 0;
+$ifSize = true;
+$storeSize = 0;
+$onlyOneType='yes';
+$i=0;
+$index=0;
+$checkLoop=1;
+$itemSize = $arrIndex = [];
+$boxItemId = '';
+$stopLoop = 'yes';
+?>
+<?php $mergedCells = ($this->helper(Magento\Tax\Helper\Data::class)->displayCartBothPrices() ? 2 : 1); ?>
+<?= $block->getChildHtml('form_before') ?>
+<form action="<?= $block->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
+          method="post"
+          id="form-validate"
+          data-mage-init='{"Magento_Checkout/js/action/update-shopping-cart":
+              {"validationURL" : "<?= $block->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
+              "updateCartActionContainer": "#update_cart_action_container"}
+          }'
+          class="form form-cart">
+    <?= $block->getBlockHtml('formkey') ?>
+    <div class="cart table-wrapper<?= $mergedCells == 2 ? ' detailed' : '' ?>">
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-top toolbar"
+                 data-attribute="cart-products-toolbar-top"><?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+        <table id="shopping-cart-table"
+               class="cart items data table"
+               data-mage-init='{"shoppingCart":{"emptyCartButton": ".action.clear",
+               "updateCartActionContainer": "#update_cart_action_container"}}'>
+            <caption class="table-caption"><?= $block->escapeHtml(__('Shopping Cart Items')) ?></caption>
+            <thead>
+                <tr>
+                    <th class="col item" scope="col"><span><?= $block->escapeHtml(__('Item')) ?></span></th>
+                    <th class="col price" scope="col"><span><?= $block->escapeHtml(__('Price')) ?></span></th>
+                    <th class="col-price cgst"><?php /* @escapeNotVerified */ echo __('CGST') ?></th>
+                    <th class="col-price sgst"><?php /* @escapeNotVerified */ echo __('SGST / UTGST') ?></th>
+                    <th class="col-price igst"><?php /* @escapeNotVerified */ echo __('IGST') ?></th>               
+                    <th class="col qty" scope="col"><span><?= $block->escapeHtml(__('Qty')) ?></span></th>
+                    <th class="col subtotal" scope="col"><span><?= $block->escapeHtml(__('Subtotal')) ?></span></th>
+                </tr>
+            </thead>
+                
+            <?php foreach ($block->getItems() as $_item):
+                $kitProSize = $_item->getKitProductSize();
+                if($_item->getBoxId() == 1){
+                    $kitBoxName = $_item->getBoxName();
+                }
+                if($kitProSize != ''){
+                    $itemSize[] = explode(",",$kitProSize);
+                }
+                    if ($_item->getBoxId() != '1') {?>
+                        <?= $block->getItemHtml($_item) ?>
+                <?php } else {
+                        $isBoxFound++;
+                }            
+             endforeach ?>
+        </table>
+
+        <?php if ($isBoxFound > 0): ?>
+            <table id="shopping-box-table"
+                class="box"><?php 
+                
+                foreach ($block->getItems() as $_items): 
+                   
+                    if($_items->getKitProductSize() == ''){ 
+                                              
+                        if ($_items->getBoxId() == 1 && $_items->getBoxType() != 'yes') {
+                          if($stopLoop =='yes'){?>
+                          <tr>
+                            <td>
+                                <h2 class="item-inbox"><?= $block->escapeHtml(__('Items In Box')) ?></h2>
+                                <div class="BoxName"> 
+                                    <div class="box_name_section"> 
+                                        <span id="box-name">
+                                            <?= /* @noEscape */ $_items->getBoxName()?>
+                                            <input type="hidden" name="box-name" 
+                                            value="<?= /* @noEscape */ $_items->getBoxName()?>"/>
+                                            </span>
+                                            <span id="name-pop-show" class="editName" style="display: none;">
+                                                <?= /* @noEscape */ __('Edit') ?>
+                                                <input type="hidden" name="edit-box-name-proid" class="edit-box-name-proid"
+                                                value="<?= /* @noEscape */ $_items->getProductId()?>"
+                                                prodItemId="<?= /* @noEscape */ $_items->getItemId()?>"
+                                                boxTitle="<?= /* @noEscape */ $_items->getBoxName()?>"/>
+                                            </span>                                       
+                                        </div>
+                                    </div>
+                                </td>                            
+                            </tr>                  
+                            <tr>
+                                <td><?= /* @noEscape */ $block->getItemHtml($_items);?></td>
+                            </tr><?php
+                        }
+                        $stopLoop='no';
+                      }                      
+                  }else{
+                    if ($_items->getKitProductSize() != '' && $onlyOneType=='yes') {
+                        
+                        $storeSize = $_items->getKitProductSize();?>
+                        <tr>
+                            <td colspan="7">
+                                <h2 class="item-inbox"><?= $block->escapeHtml(__('Items In Box')) ?></h2>
+                            </td>
+                        </tr>
+                       <tr>
+                           <td> 
+                                <div class="product_edit">                               
+                                    <div class="BoxName"> 
+                                        <?= $kitBoxName?>
+                                        <span id="box-name" style="display:none">
+                                        <?= /* @noEscape */ $kitBoxName ."-". $storeSize ?>
+                                        <input type="hidden" name="box-name" 
+                                        value="<?= /* @noEscape */ $kitBoxName ?>"/>
+                                        </span>
+                                    </div>
+                                    <div class="edit">                 
+                                        <a href="#" id="<?= /* @noEscape */ $_item->getItemId() ?>" 
+                                        class="box-edit">
+                                            <?= /* @noEscape */ __('Edit')?>
+                                            <input
+                                                type="hidden"
+                                                name="boxName" 
+                                                class="boxName"
+                                                value="<?= /* @noEscape */ $_item->getBoxName() ?>"
+                                            >
+                                            <input
+                                                type="hidden" 
+                                                name="editProId" 
+                                                class="editProId" 
+                                                value="<?= /* @noEscape */ $_item->getProductId() ?>" 
+                                                prodItemId="<?= /* @noEscape */ $_item->getItemId() ?>"
+                                            />
+                                            
+                                            <input
+                                                type="hidden"
+                                                name="boxId"
+                                                class="boxId"
+                                                value="<?= /* @noEscape */ $_item->getId() ?>"
+                                                editProQty="<?= /* @noEscape */ $_item->getQty() ?>"
+                                            >
+                                            <input
+                                                type="hidden"
+                                                name="boxDimentions"
+                                                class="boxDimentions"
+                                                value="<?= /* @noEscape */ $_item->getProductDim() ?>"
+                                            >
+                                            <?= /* @noEscape */ $_item->getBoxweight() ?>
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td><span class="totBoxPrice<?= /* @noEscape */ $index?>">0</span></td>
+                                <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                    <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                                </td><?php
+                                $sgstUtgstPercent=0;
+                                $sgstUtgstAmount=0;
+                                if($_item->getSgstPercent()>0){
+                                    $sgstUtgstPercent=$_item->getSgstPercent();
+                                    $sgstUtgstAmount=$_item->getSgstAmount();
+                                }
+                                else{
+                                    $sgstUtgstPercent=$_item->getUtgstPercent();
+                                    $sgstUtgstAmount=$_item->getUtgstAmount();
+                                }
+                            ?>
+                            <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                                <span class="price">
+                                    <?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?>
+                                </span><br>Rate:<?= round($sgstUtgstPercent ?? 0,2);?>%
+                            </td>
+                            <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_items->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_items->getIgstPercent() ?? 0,2);?>%</td>
+                            <td> 
+                                <span class="cartqty<?= $index?>" cartQty=" <?= /* @noEscape */ $_items->getQty()?>">
+                                    <?= /* @noEscape */ $_items->getQty()?>
+                                    <input id="cart-48557-qty" name="cart[<?= $_items->getItemId()?>][qty]" value="<?= $_items->getQty()?>" type="hidden" class="input-text qty">
+                                </span>
+                            </td>
+                            <td><span class="grandTotBoxPrice<?= $index?>">0</span></td>
+                        </tr> 
+
+                        <tr>
+                            <td class="col name">
+                                <div class="box-items">
+                                   <div class="box-cart-image">
+                                        <div class="pro-image">
+                                            <?= $block->getProductImage($_item->getProductId())?>
+                                        </div>                                            
+                                    </div> 
+                                
+                                    <div class="cart_item_details">
+                                        <div class="box-details">
+                                            <div class="box-item-name">                     
+                                                <h4><?= /* @noEscape */ $_items->getName()?> </h4>
+                                            </div>
+                                            <table>
+                                                <tr>
+                                                    <th>
+                                                        <span class="cart_size_title">Size</span>
+                                                    </th>
+                                                    <th>
+                                                        <span class="cart_qty_title">Qty</span>
+                                                    </th>
+                                                    <th>
+                                                        <span class="cart_price_title">Price</span>
+                                                    </th>
+                                                </tr><?php
+                                            
+                                            foreach ($block->getItems() as $_items1){                                        
+                                                if($_items1->getKitProductSize() != ''){
+                                                    $storeSize = $_items1->getKitProductSize();?>                                                    
+                                                    <tr>
+                                                        <td class="cartConfigLabel" confQty="<?= /* @noEscape */ $storeSize?>">
+                                                            <?= /* @noEscape */ $storeSize?>
+                                                        </td>
+                                                        <td class="cartConfigQty-<?= $i ?>" cartqty="<?= /* @noEscape */ $_items1->getQty()?>">
+                                                            <?= /* @noEscape */ $_items1->getQty()?>
+                                                        </td>
+                                                        <td class="cartConfigPrice-<?= $i ?>" cartPrice="<?= $_items1->getPrice()?>">
+                                                            <?= /* @noEscape */ $block->formatPrice($_items1->getPrice(),true)?>
+                                                        </td>
+                                                    </tr><?php
+                                                    $i++;
+                                                } 
+                                            }?>
+                                            </table>
+                                        </div> 
+                                       
+                                        <div class="box-edit-action">                     
+                                            <h4 id="removeBtn" class="removeBtn" boxItemId="<?= $_items->getProductId()?>" ><span>Edit</span> </h4>
+                                        </div>                               
+                                    </div>
+                                </div>                                
+                            </td>
+                            <td class="col price">
+                                <span class="cart_prodqty_num<?= $index==0 ? 0 : $index?>" cartPrice="<?= /* @noEscape */ $_items->getPrice()?>">
+                                 <?= /* @noEscape */ $block->formatPrice($_items->getPrice(),true)?>
+                                </span>
+                            </td>
+
+                            <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                            </td>
+                           
+                            <?php
+                                $sgstUtgstPercent=0;
+                                $sgstUtgstAmount=0;
+                                if($_item->getSgstPercent()>0){
+                                    $sgstUtgstPercent=$_item->getSgstPercent();
+                                    $sgstUtgstAmount=$_item->getSgstAmount();
+                                }
+                                else{
+                                    $sgstUtgstPercent=$_item->getUtgstPercent();
+                                    $sgstUtgstAmount=$_item->getUtgstAmount();
+                                }
+                            ?>
+                            <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                            <span class="price"><?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?></span><br>Rate:<?php echo round($sgstUtgstPercent ?? 0,2);?>%
+                            </td>
+                            <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_item->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getIgstPercent() ?? 0,2);?>%</td>
+                            <td class="col qty">
+                                <span class="cart_prodeachqty">
+                                   <?= /* @noEscape */ $_items->getProductQtyEachBox()?>
+                                </span>
+                            </td>
+                            <td class="col subtotal">
+                                <span class="cart_prod_totprice">
+                                    <?= /* @noEscape */ $block->formatPrice( $_items->getProductQtyEachBox() * $_items->getPrice() )?>
+                                </span>
+                            </td>
+                        </tr><?php 
+                        $onlyOneType = 'no';
+                    }
+                    
+                    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                    $cart = $objectManager->get(\Magento\Checkout\Model\Cart::class);
+                    $quote = $cart->getQuote();
+                    $items = $quote->getAllVisibleItems();
+                    if($checkLoop ==1){
+                        foreach ($items as $item) {
+                        
+                            if($item->getBoxType() == 'yes' && $item->getKitProductSize() == ''){?>
+                                <tr>
+                                    <td class="col name">
+                                        <div class="box-items">                             
+                                            <div class="box-cart-image">
+                                                <div class="pro-image">
+                                                    <?= $proImage= $block->getProductImage($item->getProductId())?>
+                                                </div>                                            
+                                            </div> 
+                                        
+                                            <div class="cart_item_details">
+                                                <div class="box-details">
+                                                    <div class="box-item-name"><?php
+                                                        if($item->getBoxId() ==1){?>
+                                                            <h4 id="confBoxId" confBoxsId="<?= /* @noEscape */ $item->getId()?>">
+                                                                <?= /* @noEscape */ $item->getName()?>
+                                                            </h4><?php                                                        
+                                                            
+                                                            $additionalOptions = $item->getOptionByCode('info_buyRequest');
+                                                            $buyRequest =$additionalOptions->getValue();
+                                                        
+                                                            $itemList = json_decode($buyRequest, true);
+                                                            $imgPath  = '';
+                                                            $imgtitle = '';
+                                                            if (!empty($itemList['options'])) {
+                                                                foreach ($itemList['options'] as $getOptions) {                                                                                        
+                                                                    if (isset($getOptions['title']) || isset($getOptions['quote_path'])) {
+                                                                        $imgtitle = $getOptions['title'];
+                                                                        $imgPath = $getOptions['quote_path'];
+                                                                    }                                                                   
+                                                                }
+                                                                if ($imgPath != '') {?>                                                                
+                                                                    <div class="kit-box-logo">
+                                                                        <span class="logo-title"><?= /* @noEscape */ __('Logo:')?></span>
+                                                                        <a href="<?= /* @noEscape */ '/media/'.$imgPath ?>" target="_blank">
+                                                                            <?= /* @noEscape */ $imgtitle ?>
+                                                                        </a>
+                                                                    </div><?php
+                                                                }
+                                                            }
+                                                        }else{   ?>                 
+                                                            <h4 class="product-name">
+                                                                <?= /* @noEscape */ $item->getName()?>
+                                                            </h4> <?php 
+                                                        }?>
+                                                    </div>                            
+                                                </div>                                
+                                            </div>
+                                        </div>                                
+                                    </td>
+                                    <td class="col price">
+                                        <span class="cart_prodqty_num-<?= $index ?>" cartPrice="<?= $item->getPrice() ?>">
+                                        <?= /* @noEscape */ $block->formatPrice($item->getPrice(),true) ?>
+                                        </span>
+                                    </td>
+
+                                    <td class="col-price cgst" data-th="<?php echo $block->escapeHtml(__('CGST')); ?>">
+                                    <span class="price"><?= /* @noEscape */ $block->formatPrice($_item->getData('cgst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getCgstPercent() ?? 0,2);?>%
+                                </td><?php
+                                    $sgstUtgstPercent=0;
+                                    $sgstUtgstAmount=0;
+                                    if($_item->getSgstPercent()>0){
+                                        $sgstUtgstPercent=$_item->getSgstPercent();
+                                        $sgstUtgstAmount=$_item->getSgstAmount();
+                                    }
+                                    else{
+                                        $sgstUtgstPercent=$_item->getUtgstPercent();
+                                        $sgstUtgstAmount=$_item->getUtgstAmount();
+                                    }
+                                ?>
+                                <td class="col-price sgst" data-th="<?= $block->escapeHtml(__('SGST')); ?>">
+                                <span class="price"><?= /* @noEscape */ $block->formatPrice($sgstUtgstAmount,true) ?></span><br>Rate:<?php echo round($sgstUtgstPercent ?? 0,2);?>%
+                                </td>
+                                <td class="col-price" data-th="<?= $block->escapeHtml(__('IGST')); ?>">
+                                    <span class="price igst"><?= /* @noEscape */ $block->formatPrice($_item->getData('igst_amount'),true) ?></span><br>Rate:<?php echo round($_item->getIgstPercent() ?? 0,2);?>%</td>
+                                    <td class="col qty">
+                                        <span class="cart_prod_eachqty">
+                                        <?= /* @noEscape */ $qty = $item->getProductQtyEachBox() == null ? 1 : $item->getProductQtyEachBox()?>
+                                        </span>
+                                    </td>
+                                    <td class="col subtotal">
+                                        <span class="cart_prod_totprice">
+                                            <?php ?>
+                                            <?= /* @noEscape */ $block->formatPrice( $qty * $item->getPrice() )?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tr>
+                            <div class="actions-toolbar">                
+                                    <?= /* @noEscape */ $block->getActions($_item) ?>
+                                </div>
+                            <?php }
+                        }
+                    }$checkLoop=0;                       
+                        $arrIndex[]= $index;
+                        $index++;
+                }
+                endforeach;?>
+                <input type="hidden" value="<?= count($arrIndex)?>" id="arrIndex"/>
+            </table>
+        <?php endif ?>
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-bottom toolbar"
+                 data-attribute="cart-products-toolbar-bottom">
+                 <?= /* @noEscape */ $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+    </div>
+    <div class="cart main actions">
+        <?php if ($block->getContinueShoppingUrl()): ?>
+            <a class="action continue"
+               href="<?= /* @noEscape */ $block->escapeUrl($block->getContinueShoppingUrl()) ?>"
+               title="<?= /* @noEscape */ $block->escapeHtml(__('Continue Shopping')) ?>">
+                <span><?= /* @noEscape */
+                $block->escapeHtml(__('Continue Shopping')) ?></span>
+            </a>
+        <?php endif; ?>
+        <?php if ($block->getViewModel()->isClearShoppingCartEnabled()): ?>
+            <button type="button"
+                    name="update_cart_action"
+                    data-cart-empty=""
+                    value="empty_cart"
+                    title="<?= /* @noEscape */
+                    $block->escapeHtml(__('Clear Shopping Cart')) ?>"
+                    class="action clear" id="empty_cart_button">
+                <span><?= /* @noEscape */ $block->escapeHtml(__('Clear Shopping Cart')) ?></span>
+            </button>
+        <?php endif ?>
+        <button type="submit"
+                name="update_cart_action"
+                data-cart-item-update=""
+                value="update_qty"
+                title="<?= /* @noEscape */
+                $block->escapeHtml(__('Update Shopping Cart')) ?>"
+                class="action update">
+            <span><?= /* @noEscape */ $block->escapeHtml(__('Update Shopping Cart')) ?></span>
+        </button>
+        <input type="hidden" value="" id="update_cart_action_container" 
+        data-cart-item-update=""/>
+    </div>
+</form>
+<?= $block->getChildHtml('checkout.cart.order.actions') ?>
+<?= $block->getChildHtml('shopping.cart.table.after') ?>

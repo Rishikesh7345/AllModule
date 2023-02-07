@@ -114,6 +114,12 @@ class DimensionValue extends Action
     {
         $result = $this->resultRawFactory->create();
         $post = $this->getRequest()->getPostValue();
+
+        $proIdKit = '';        
+        if(isset($post['proIdKit'])){
+            $proIdKit = json_encode($post['proIdKit']);
+        }
+
         // Add product dimention of each product
         $sum = 0;
         if (!empty($post['proDim'])) {
@@ -180,7 +186,8 @@ class DimensionValue extends Action
                 if (isset($prod[0])) {
                     $parentId[]= $prod[0];
                 }
-                if ($prod[0] == $parentProId) {
+                if ($prod[0] == $parentProId) {   
+                    // echo $post['prodQty'] .'>='. $product->getMoqty().'\n';                            
                     if ($post['prodQty'] >= $product->getMoqty()) {
                         $finalPrice = $this->priceCurrency->convertAndFormat($product->getFinalPrice(), 2);
                         $html .='<div class="box-1 product-box item box-card">
@@ -198,11 +205,15 @@ class DimensionValue extends Action
                             <input type="radio" name="choose-buildbox" 
                             value="'.$product->getId().'" 
                             class="choose-buildbox">
-                            
+                           
                             <input type="hidden" name="box_parent_Id" 
                             value="'.$parentProId.'">
                             <input type="hidden" name="attributeId" value="'.$optId.'">
                         </div>';
+                        $html .="<input type='hidden' name='proIdKit' value='".$proIdKit."'/>
+                        <input type='hidden' name='qtyforkit' value='".$post['prodQty']."' id='qtyforkit' />
+                        ";
+
                     }
                     break;
                 }
