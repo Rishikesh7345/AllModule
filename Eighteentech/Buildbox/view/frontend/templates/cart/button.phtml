@@ -14,7 +14,10 @@ if ($block->getItemsCount()): ?>
         <?php foreach ($block->getItems() as $cartItem):
             $cartProId = $cartItem->getProductId();
             $productForBox = $block->getCheckProduct($cartProId);
-            if ($cartItem->getBoxId() != 1 && $cartItem->getBoxType() != 'yes') {
+          
+            // if ($cartItem->getBoxId() != 1 && $cartItem->getBoxItemId() != null) {
+                if ($cartItem->getBoxId() != 1 &&
+                                $cartItem->getPrice() != 0 && $cartItem->getBoxType() == null) {
                 if ($productForBox == 1) {?>
                     <div class="build-box-btn">
                         <button id="modal-btn">Kit up</button>

@@ -122,27 +122,30 @@ class EditBoxSave extends Action
     public function execute()
     {
         $post = $this->getRequest()->getPostValue();
-        // print_r($post['editItemId']);
-        // die;
+
+        $storekitBoxId = '';
         $kitProQty = 1;
+        
         if(isset($post['kitProQty'])){
             $kitProQty = $post['kitProQty'];
         }
         $storeAddonsPrice = 0;
         if(isset($post['storeAddonsPrice'])){
-            $storeAddonsPrice = $post['storeAddonsPrice'];
+            $storeAddonsPrice = (int)$post['storeAddonsPrice'];
         }
         $proIdKit=[];
         if($post['proIdKit']){
             $proIdKit = json_decode($post['proIdKit'],true);
         }
-        // print_r($post);
-        // die;
+        
         if(isset($post['kitConfChildQtyId'])){
             $selectKitProId = unserialize(base64_decode($post['selectKitProId'][0]));
             
-            $kitConfChildQtyId = json_decode($post['kitConfChildQtyId'],true);
-            $selectkitParentId = $post['selectkitParentId'];
+           $kitConfChildQtyId = json_decode($post['kitConfChildQtyId'],true);
+           $selectkitParentId = $post['selectkitParentId'];
+           $getItem=[];
+           $getItem = $post['getItem'];
+
             $configProSize = unserialize(base64_decode($post['configProSize']));
             $ProSize = implode(",",$configProSize);
     
@@ -169,12 +172,14 @@ class EditBoxSave extends Action
             $cartItems = $cart->getQuote()->getAllItems();
             foreach($kitConfChildQtyId as $kitProId => $qty){
                 if($removePro == 1){                    
-                    foreach ($cartItems as $item) {
-                        if($item->getProductId() == $selectkitParentId){
-                            $qouteItem = $quote->getItemById($item->getItemId());                    
+                    foreach ($cartItems as $item) { 
+                        if($item->getProductId() == $post['selectkitParentId']){
+                    
+                            $qouteItem = $quote->getItemById($item->getItemId());
                             $qouteItem->delete();
                             $qouteItem->save();
                             continue;
+                               
                         }
                     }
                     $removePro=0;
@@ -193,14 +198,14 @@ class EditBoxSave extends Action
                 }
                 
                 $params1['super_attribute'] = $options1;
-                
+         
                 /*Add product to cart */
                 $cart->addProduct($parent1, $params1);
                 $cart->save();
             }
             
         }
-        
+
         $cart=$this->cart;
         $itemInBox = 0;
         if (!empty($post['itemInBox'])) {
@@ -230,18 +235,21 @@ class EditBoxSave extends Action
          * Get child product id and options id
          */
         $childWCId = '' ;
+
         if (!isset($post["optionProId"])) {
             $childWCId = $post['choose-buildbox'];
         } else {
             $childWCId = $post["optionProId"];
         }
+
         $productId = '';
         $parentByChild = $this->_catalogProductTypeConfigurable->getParentIdsByChild($childWCId);
+        
         if (isset($parentByChild[0])) {
             //set id as parent product id...
             $productId = $parentByChild[0];
         }
-       
+
         /**
          * @var $childProduct
          * Load product by product id
@@ -279,23 +287,23 @@ class EditBoxSave extends Action
          * @var $getItemsArry
          * get All cart items
          */
-        $productAttributeOptions1 = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
-        $customOptions1 = $this->_customOptions->getProductOptionCollection($parent);
+        $productAttributeOptions = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
+        $customOptions = $this->_customOptions->getProductOptionCollection($parent);
         $optionId = '';
         $option = [];
         $itemkitId = '';
-        foreach ($customOptions1 as $option1) {
-            $optionId = $option1->getId();
+        foreach ($customOptions as $option) {
+            $optionId = $option->getId();
         }
-        foreach ($productAttributeOptions1 as $option2) {
-            $options[$option2['attribute_id']] = $childProduct->getData($option2['attribute_code']);
+        foreach ($productAttributeOptions as $option) {
+            $options[$option['attribute_id']] = $childProduct->getData($option['attribute_code']);
         }
-        // print_r($option2);
-        // die;
+
         $quote = $this->cart->getQuote();
         $getItemsArry = $this->cart->getQuote()->getAllItems();
         foreach ($getItemsArry as $items) {
             for ($i = 0; $i < count($post['getItem']); $i++) {
+
                 $quoteItemCollection = $this->quoteItemCollectionFactory->create();
                 $quoteItemCollection->addFieldToSelect('*')
                     ->addFieldToFilter('item_id', $items->getItemId())
@@ -304,23 +312,26 @@ class EditBoxSave extends Action
                     ->getFirstItem();
 
                 foreach ($quoteItemCollection as $item) {
-                    $itemkitId = $item->getItemId();
-                   if($item->getBoxItemId() == $post['editItemId']){
-                    $remItem = $quote->getItemById($itemkitId);
-                    $remItem->setBoxProductId(null);
-                    $remItem->setBoxType(null);
-                    $remItem->setBoxItemId(null);
-                    $remItem->setProductDim(null);
                    
-                    $remItem->save();
-                }
+                   if($item->getBoxItemId() == $post['editItemId']){
+                        $itemkitId = $item->getItemId();
+                        $remItem = $quote->getItemById($itemkitId);
+                        $remItem->setBoxProductId(null);
+                        $remItem->setBoxType(null);
+                        $remItem->setBoxItemId(null);
+                        $remItem->setProductDim(null);
+                        
+                        $remItem->setProductQtyEachBox(null);
+                        $remItem->setKitProductSize(null);                        
+                        $remItem->save();
+                    }
                 }
             }
 
             if($items->getProductType() == 'configurable'){
-                // echo "asdfasdfs";
-                // echo '\n'.$items->getItemId() .'=='. $item->getBoxItemId();
-                // if($items->getBoxItemId() == $post['editItemId']){
+                $itemkitId = $item->getItemId();
+                   
+                   if($item->getBoxItemId() == $post['editItemId']){
                     $quoteItem = $quote->getItemById($items->getItemId());                    
                     $quoteItem->setBoxType(null);
                     $quoteItem->setBoxProductId(null);
@@ -328,9 +339,10 @@ class EditBoxSave extends Action
                     $quoteItem->setKitProductSize(null);
 
                     $quoteItem->save();
-                // }
+                }
             }
-            if ($items->getProductId() == $post['existId']) {
+
+            if ($items->getItemId() == $post['editItemId']) {
                 $items->delete();
                 $items->save();
                 continue;
@@ -344,7 +356,7 @@ class EditBoxSave extends Action
         } else {
             $itemInBox = 0;
         }
-        
+        $idForOption = '';
         /**
          * add custom column value in cart product with box
          */
@@ -363,6 +375,7 @@ class EditBoxSave extends Action
                     $item->setBoxProductId($productId);
                     
                     if(array_key_exists($item->getProductId(),$proIdKit)){
+                        $idForOption = $item->getItemId();
                         $item->setProductQtyEachBox($proIdKit[$item->getProductId()]);
                         if(isset($post['totalQty'])){
                             $item->setQty($post['totalQty'] * $proIdKit[$item->getProductId()]);
@@ -378,19 +391,21 @@ class EditBoxSave extends Action
                     ];
 
                     $item->save();
-                }else{
-                    $option = [
-                        $optionId  => $parent->getName().'_'. $item->getItemId()
-                    ];
                 }
+
+                $option = [
+                    $optionId  => $parent->getName().'_'. $idForOption
+                ];
             }
         }
         
+        $params['super_attribute'] = $options;        
+
         $params['options'] = $option;
         $params['options_'.$childWCId[0].'_file_action'] = 'save_new';
-        $params['super_attribute'] = $options;        
-        $this->cart->addProduct($parent, $params);
-        $this->cart->save();
+
+        $cart->addProduct($parent, $params);
+        $cart->save();
         
         /**
          * @var $data
@@ -425,11 +440,10 @@ class EditBoxSave extends Action
                 $getBoxItems[] = $setBoxId->getItemId();
                 $boxPrice= $setBoxId->getPrice();
                 $setBoxId->setBoxId(1);
-                if($storeAddonsPrice != 0){
-                    $boxTot = $boxPrice + (int)$storeAddonsPrice;
-                    $setBoxId->setPrice($boxTot);
-                    $setBoxId->setKitAddonPrice($storeAddonsPrice);
-                }
+                $setBoxId->setBoxItemId($setBoxId->getItemId());
+                $storekitBoxId = $setBoxId->getItemId();
+                
+               
                 $setBoxId->setProductQtyEachBox(1);
                 
                 if(isset($post['totalQty'])){
@@ -437,10 +451,15 @@ class EditBoxSave extends Action
                 }else{
                     $item->setQty($kitProQty);
                 }
+
                 if ( $setBoxId->getBoxId() == '1' ) {
                     $ItemProId = $setBoxId->getItemId();
                 }
                
+                $boxTot = $boxPrice + $storeAddonsPrice;
+                $setBoxId->setPrice($boxTot);
+                $setBoxId->setKitAddonPrice($storeAddonsPrice);
+              
                 $setBoxId->save();
             }
             if (!empty($parentId) && ($parentId == $items->getParentItemId())) {
@@ -461,11 +480,11 @@ class EditBoxSave extends Action
             $arrProSize = unserialize(base64_decode($post['arrProSize']));
             $itemkitId = '';
             $cartItems = $cart->getQuote()->getAllItems();
+            $prodId = $post['getItem'];
             foreach ($cartItems as $item) {                    
                 if($item->getBoxId() == 1){
                     if($item->getProductId() == $productId){
-                        $itemkitId = $item->getItemId();    
-                        
+                        $itemkitId = $item->getItemId();                         
                     }
                 }               
             }
@@ -476,7 +495,7 @@ class EditBoxSave extends Action
                         $quoteItem = $quote->getItemById($item->getParentItemId());                    
                         $quoteItem->setBoxType("yes");
                         $quoteItem->setBoxProductId($productId);
-                        $quoteItem->setBoxItemId($itemkitId);
+                        $quoteItem->setBoxItemId($storekitBoxId);
                         if($quoteItem->getKitProductSize() == '' ){
                             $this->CheckProduct($itemkitId);
                         }
@@ -497,7 +516,7 @@ class EditBoxSave extends Action
                         }
                         $quoteItem->save();
                     }else{
-                        if($item->getBoxType() == 'yes' && $item->getBoxProductId() == $productId){
+                        if($item->getBoxType() == 'yes' && in_array($item->getItemId(),$prodId)){
                             $quote = $this->cart->getQuote();
                             $item = $quote->getItemById($item->getItemId());
                             $item->setBoxItemId($itemkitId);
@@ -517,15 +536,20 @@ class EditBoxSave extends Action
             $cartItems = $cart->getQuote()->getAllItems();
             foreach ($cartItems as $item) {                    
                 if($item->getBoxId() == 1){
-                    if($item->getProductId() == $productId){
+                    if($item->getItemId() == $storekitBoxId){
                         $itemkitId = $item->getItemId();    
                     }
                 }            
             }
             foreach ($cartItems as $item) {
-                if($item->getBoxType() == 'yes' && $item->getBoxProductId() == $productId){
+
+                $prodId = $post['getItem'];
+
+                if($item->getBoxType() == 'yes' && in_array($item->getItemId(),$prodId)){
+                   
                     $quote = $this->cart->getQuote();
                     $item = $quote->getItemById($item->getItemId());
+                    $item->setBoxItemId(null);
                     $item->setBoxItemId($itemkitId);
                     $item->save();
                 }

@@ -149,8 +149,7 @@ class Proid extends Action
             $postvalue = unserialize(base64_decode($post['selectKitProId']));
 
         }
-        // print_r($postvalue);echo "==" ;
-        // die;
+
         $cartSelectedPro = explode(",", $post['cartSelectedPro']);
       
         $html='';
@@ -269,13 +268,11 @@ class Proid extends Action
                 
             }
         }
-            // print_r(array_unique($arrProSize));
-    $proInfo .=' </div>
-        <input type="hidden" value="'.base64_encode(serialize(array_unique($configProSize))).'" id="configProSize" name="configProSize">
-        <input type="hidden" value="'.base64_encode(serialize(array_unique($arrProSize))).'" id="arrProSize" name="arrProSize">
-    </div>';
-    // echo $proInfo;
-    // die;
+
+        $proInfo .=' </div>
+            <input type="hidden" value="'.base64_encode(serialize(array_unique($configProSize))).'" id="configProSize" name="configProSize">
+            <input type="hidden" value="'.base64_encode(serialize(array_unique($arrProSize))).'" id="arrProSize" name="arrProSize">
+        </div>';
         
         $product = $this->_productloader->create()->load($post['boxId']);
         $StockState = $this->objectManager->get(\Magento\CatalogInventory\Api\StockStateInterface::class);
@@ -351,7 +348,6 @@ class Proid extends Action
             $sizeOp = 0;
             foreach ($usedProducts as $child) {
                 if ($child->getId() == $post['boxId']) {
-                 //echo $child->getId();
                     $sizeOp = $this->getOptionLabelByValue('boxweight', $child->getBoxweight());
                 }
                 $size = $this->getOptionLabelByValue('boxweight', $child->getBoxweight());

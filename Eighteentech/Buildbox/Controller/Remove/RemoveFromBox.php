@@ -102,114 +102,78 @@ class RemoveFromBox extends Action
     public function execute()
     {
        $post = $this->getRequest()->getPostValue();
-       $quote = $this->cart->getQuote();
-       if(!isset($post['id'])) {
-            $quoteId = $this->cart->getQuote()->getId();
-            $itemsArray = $this->cart->getQuote()->getAllItems();
+       $quote = $this->cart->getQuote();       
 
-            $countId = [];
-            $i = 0;
-            
-            $itemById = $quote->getItemById($post['id']);
-            $boxProductId = $itemById->getBoxProductId();
-            
-            $boxId = $itemById->getBoxItemId();
-            if ($itemById->getBoxType() == null) {
-                $itemById->setBoxType(null);
-                $itemById->setBoxProductId(null);
-                $itemById->setProductQtyEachBox(null);
-                $item->setEsdcPricing(null);
-                $item->setBoxItemId(null);
-                $quote1 = $this->quoteRepository->get($itemById->getQuoteId());
-                $quote1->setData('esdc_enable', null);
-                $this->quoteRepository->save($quote1);
-                $itemById->save();
-            }
-            foreach ($itemsArray as $item) {
-                if ($item->getItemId() != $boxId) {
-                    $items = $quote->getItemById($item->getId());
-                    if ($item->getId() == $boxId) {
-                        $item->delete();
-                        $item->save();
-                        continue;
+        $quoteId = $this->cart->getQuote()->getId();
+        $itemsArray = $this->cart->getQuote()->getAllItems();
+        $confBoxId = '';
+
+        $confBoxId = $post['id'];
+        
+        $countId = [];
+        $i = 0;
+        $quote = $this->cart->getQuote();
+        $itemById = $quote->getItemById($confBoxId);
+        $boxProductId = $itemById->getBoxProductId();
+        
+        $boxId = $itemById->getBoxItemId();            
+
+        $quoteId = $this->cart->getQuote()->getId();
+        $itemsArray = $this->cart->getQuote()->getAllItems();
+        foreach ($itemsArray as $item) {
+            if ($item->getBoxId() == 0) {
+                if($item->getBoxType() == 'yes'){
+                    if($item->getBoxItemId() == $confBoxId){
+                    $item->setBoxType(null);
+                    $item->setKitProductSize(null);
+                    $item->setBoxProductId(null);
+                    $item->setProductQtyEachBox(null);
+        
+                    $item->setEsdcPricing(null);
+                    $item->setBoxItemId(null);
+                    $quote1 = $this->quoteRepository->get($itemById->getQuoteId());
+                    $quote1->setData('esdc_enable', null);
+                    $this->quoteRepository->save($quote1);
+                    $item->save();
+                    continue;
+                    }
+                }else{
+                    if($item->getBoxItemId() == $confBoxId){
+                    $item->setBoxType(null);
+                    $item->setKitProductSize(null);
+                    $item->setBoxProductId(null);
+                    $item->setProductQtyEachBox(null);
+        
+                    $item->setEsdcPricing(null);
+                    $item->setBoxItemId(null);
+                    $quote1 = $this->quoteRepository->get($itemById->getQuoteId());
+                    $quote1->setData('esdc_enable', null);
+                    $this->quoteRepository->save($quote1);
+                    $item->save();
+                    continue;
                     }
                 }
-            }
-
-        }else {
-
-            $quoteId = $this->cart->getQuote()->getId();
-            $itemsArray = $this->cart->getQuote()->getAllItems();
-            $confBoxId = '';
-            if(isset($post['confBoxId'])){
-                $confBoxId = $post['confBoxId'];
-            }else{
-                $confBoxId = $post['id'];
-            }
-            $countId = [];
-            $i = 0;
-            $quote = $this->cart->getQuote();
-            $itemById = $quote->getItemById($confBoxId);
-            $boxProductId = $itemById->getBoxProductId();
-            
-            $boxId = $itemById->getBoxItemId();            
-
-                $quoteId = $this->cart->getQuote()->getId();
-                $itemsArray = $this->cart->getQuote()->getAllItems();
-                foreach ($itemsArray as $item) {
-                    if ($item->getBoxId() == 0) {
-                        if($item->getBoxType() == 'yes'){
-                            if($item->getBoxItemId() == $confBoxId){
-                            $item->setBoxType(null);
-                            $item->setKitProductSize(null);
-                            $item->setBoxProductId(null);
-                            $item->setProductQtyEachBox(null);
-                
-                            $item->setEsdcPricing(null);
-                            $item->setBoxItemId(null);
-                            $quote1 = $this->quoteRepository->get($itemById->getQuoteId());
-                            $quote1->setData('esdc_enable', null);
-                            $this->quoteRepository->save($quote1);
-                            $item->save();
-                            continue;
-                            }
-                        }else{
-                            if($item->getBoxItemId() == $confBoxId){
-                            $item->setBoxType(null);
-                            $item->setKitProductSize(null);
-                            $item->setBoxProductId(null);
-                            $item->setProductQtyEachBox(null);
-                
-                            $item->setEsdcPricing(null);
-                            $item->setBoxItemId(null);
-                            $quote1 = $this->quoteRepository->get($itemById->getQuoteId());
-                            $quote1->setData('esdc_enable', null);
-                            $this->quoteRepository->save($quote1);
-                            $item->save();
-                            continue;
-                            }
-                        }
-                        if ($item->getBoxType() != 'yes'){
-                            $item->setBoxType(null);
-                            $item->getKitProductSize(null);
-                            $item->save();
-                            continue;
-                        }
-                    }
-                }
-            
-            
-            foreach ($itemsArray as $item) {
-                if ($item->getItemId() == $confBoxId) {
-                    $items = $quote->getItemById($item->getId());
-                    if ($item->getId() == $confBoxId) {
-                        $item->delete();
-                        $item->save();
-                        continue;
-                    }
+                if ($item->getBoxType() != 'yes'){
+                    $item->setBoxType(null);
+                    $item->getKitProductSize(null);
+                    $item->save();
+                    continue;
                 }
             }
         }
+        
+        
+        foreach ($itemsArray as $item) {
+            if ($item->getItemId() == $confBoxId) {
+                $items = $quote->getItemById($item->getId());
+                if ($item->getId() == $confBoxId) {
+                    $item->delete();
+                    $item->save();
+                    continue;
+                }
+            }
+        }
+        
         $this->cart->save();
         //message for response
         $data = ['success' => 'true',

@@ -31,7 +31,7 @@ $SampleProductshelper = $this->helper(Eighteentech\SampleProducts\Helper\Data::c
 if ($block->getQty()!=0) {
     ?>
 
-<tbody class="cart item">
+<tbody class="cart item" >
     <?php if ($_item->getBoxType() != 'yes' && $_item->getBoxId() != 1) {?>
     <tr class="item-info">
         
@@ -291,7 +291,7 @@ if ($block->getQty()!=0) {
                 if ($item->getBoxItemId() == $_item->getItemId()){
                     $i++;?>
 
-					<tr class="item-box item">
+					<tr class="item-box item " style="display:none;">
                     <td class="col item">
 
 

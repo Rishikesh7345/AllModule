@@ -52,6 +52,13 @@ class Grid extends \Magento\Checkout\Block\Cart
      */
     private $helper;
 
+	/**
+     * Catalog product configuration
+     *
+     * @var \Magento\Catalog\Helper\Product\Configuration
+     */
+    protected $_productConfig = null;
+    
     /**
      * @var ProductFactory
      */
@@ -81,12 +88,14 @@ class Grid extends \Magento\Checkout\Block\Cart
         \Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface $joinProcessor,
         Data $helper,
         ProductFactory $_productloader,
+        \Magento\Catalog\Helper\Product\Configuration $productConfig,
         array $data = []
     ) {
         $this->itemCollectionFactory  = $itemCollectionFactory;
         $this->joinAttributeProcessor = $joinProcessor;
         $this->helper                 = $helper;
         $this->_productloader     = $_productloader;
+        $this->_productConfig = $productConfig;
         parent::__construct(
             $context,
             $customerSession,
@@ -98,6 +107,9 @@ class Grid extends \Magento\Checkout\Block\Cart
         );
     }
 
+	
+	
+    
     /**
      * Prepare Quote Item Product URLs
      * When we don't have custom_items, items URLs will be collected for Collection limited by pager
@@ -141,6 +153,29 @@ class Grid extends \Magento\Checkout\Block\Cart
         return $this;
     }
 
+    /**
+     * Get product customize options
+     *
+     * @return array
+     */
+    public function getProductOptions()
+    {
+        /* @var $helper \Magento\Catalog\Helper\Product\Configuration */
+        $helper = $this->_productConfig;
+        return $helper->getCustomOptions($this->getItems());
+    }
+
+    public function getFormatedOptionValue($optionValue)
+    {
+        /* @var $helper \Magento\Catalog\Helper\Product\Configuration */
+        $helper = $this->_productConfig;
+        $params = [
+            'max_length' => 55,
+            'cut_replacer' => ' <a href="#" class="dots tooltip toggle" onclick="return false">...</a>'
+        ];
+        return $helper->getFormattedOptionValue($optionValue, $params);
+    }
+    
     /**
      * Change Price
      *

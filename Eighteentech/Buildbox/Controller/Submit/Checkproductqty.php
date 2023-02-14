@@ -48,12 +48,14 @@ class Checkproductqty extends Action
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Framework\Controller\Result\RawFactory $resultRawFactory,
         \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
-        \Magento\CatalogInventory\Api\StockStateInterface $stockState
+        \Magento\CatalogInventory\Api\StockStateInterface $stockState,
+        \Magento\Checkout\Model\Cart $cart
     ) {
         $this->resultPageFactory    = $resultPageFactory;
         $this->resultRawFactory     = $resultRawFactory;
         $this->jsonResultFactory    = $jsonResultFactory; 
         $this->stockState           = $stockState;
+        $this->cart = $cart;
         parent::__construct($context);
     }
 
@@ -65,9 +67,48 @@ class Checkproductqty extends Action
     public function execute()
     {
         $post = $this->getRequest()->getPostValue();
-        $html = "";
         
+        // print_r($post);
+        // die;
         $result = $this->resultRawFactory->create();
+        $html = "";
+        $items = $this->cart->getItems();
+        $selectedItemId[] = explode(',',$post['selectedItemId']);        
+        foreach($items as $item){
+            foreach($selectedItemId[0] as $itemId){
+                
+                if($itemId == $item->getItemId()){       
+                                 
+                    if($item->getProductId() != $post['kitconfproid'] && $item->getProductType() != 'configurable'){
+                        
+                        $productQty1 = $this->stockState->getStockQty($item->getProductId());
+                       
+                        if( $productQty1 <= $post['totalQty']){
+                            $html = "                                
+                                <span class='productQty' style='color: red;'>Product qty is not available!</span>";
+                            $result->setContents($html);
+                            return $result;
+                        }
+                    }
+                    // else{
+                        // if($post['selectedProductId'] != null){
+                        //     foreach($post['selectedProductId'] as $ProductId){
+                        //         $productQty1 = $this->stockState->getStockQty($ProductId);
+                       
+                        //         if( $productQty1 <= $post['totalQty']){
+                        //             $html = "                                
+                        //                 <span class='productQty' style='color: red;'>Product qty is not available!</span>";
+                        //             $result->setContents($html);
+                        //             return $result;
+                        //         }
+                        //     }
+                         
+                        // }
+                    // }
+                }
+            }
+            
+        }
         
         $productQty = $this->stockState->getStockQty($post['kitconfproid']);
         

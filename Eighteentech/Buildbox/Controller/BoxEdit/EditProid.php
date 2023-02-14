@@ -162,8 +162,7 @@ class EditProid extends Action
         $checkConfigProd = true; 
         $html = '<div style="display:flex;" >';
         foreach ($items as $item) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                         
+
             $product = $this->_productloader->create()->load($item->getProductId());
             $productType= $item->getProductType();
             $editItemId = $item->getItemId();
@@ -174,13 +173,11 @@ class EditProid extends Action
 
             if ($product->getProdinbox() == true) {
                 if($productType == 'configurable'){
-                   echo $proditemid .'=='. $item->getBoxItemId();
                     if($proditemid == $item->getBoxItemId() || $item->getBoxItemId() == null) {
-                        echo "22222====1222";
-                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($item->getProductId());
+                        
+                        $product = $this->_productloader->create()->load($item->getProductId());
                                        
                         if($product->getId() == $item->getProductId() && $checkConfigProd == true){
-                            echo "@@@====@@@";
                             $items = $this->_session->getQuote()->getAllItems();
                             foreach($items as $childItem){
                                 if($childItem->getProductId() == $product->getId()){
@@ -252,7 +249,7 @@ class EditProid extends Action
                         $checkConfigProd = false; 
                     }
                 }else {
-                    echo "sldfjsd";
+                   if($proditemid == $item->getBoxItemId() || $item->getBoxItemId() == null) {
                     if($item->getPrice() != 0){
                     $imageUrl = $this->getImageUrl($product, 'product_page_image_small');
                     $html .= '<div class="product-list">';
@@ -302,6 +299,7 @@ class EditProid extends Action
                                 </div>
                             </div>';
                         }
+                    }
                 }
             }
         }
