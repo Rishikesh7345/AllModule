@@ -204,7 +204,7 @@ $boxItemId = $boxItemIdkit = $simpleBoxRem = $InSimpleProBoxItemId= '';
 
                                         <div class="box-cart-image">
                                             <div class="pro-image">
-                                                <?= $block->getProductImage($_item->getProductId())?>
+                                                <?= $block->getProductImage($_items->getProductId())?>
                                             </div>                                            
                                         </div> 
                                         
@@ -222,7 +222,7 @@ $boxItemId = $boxItemIdkit = $simpleBoxRem = $InSimpleProBoxItemId= '';
                                                         foreach($options['attributes_info'] as $option){?>
                                                             <div class="box_custom_option">
                                                                 <span class="option_label"><?= $option['label']?>: </span>
-                                                                <span class="option_value"><?= $option['value']?></span>
+                                                                <span class="option_value"><?= $option['value']?>L</span>
                                                             </div><?php
                                                         }                                                       
                                                     }

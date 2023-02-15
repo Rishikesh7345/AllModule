@@ -84,9 +84,14 @@ class Checkproductqty extends Action
                         $productQty1 = $this->stockState->getStockQty($item->getProductId());
                        
                         if( $productQty1 <= $post['totalQty']){
-                            $html = "                                
-                                <span class='productQty' style='color: red;'>Product qty is not available!</span>";
-                            $result->setContents($html);
+                            // $html = "                                
+                            //     <span class='productQty' style='color: red;'>Product qty is not available!111111111</span>";
+                            // $result->setContents($html);
+                            // return $result;
+                            $data = ['success' => 'true','name' => $item->getName(), 'proqty'=> $productQty1, 'simple' => 'true', 'msg1' => 'Product qty is not available!', 'msg2' => 'In Simple product, Only ( '.$productQty1.' ) Qty is available'];
+                                
+                            $result = $this->jsonResultFactory->create();
+                            $result->setData($data);
                             return $result;
                         }
                     }

@@ -160,7 +160,7 @@ class EditProid extends Action
         $childProductQty = [];
         $storeProdQty = '';
         $checkConfigProd = true; 
-        $html = '<div style="display:flex;" >';
+        $html = '<div class="product-cart-box" style="display: flex !important;" >';
         foreach ($items as $item) {
 
             $product = $this->_productloader->create()->load($item->getProductId());
@@ -217,9 +217,7 @@ class EditProid extends Action
                             <div class="product-cart-box">
                                 <div class="pro-image">
                                     <img 
-                                        src="'.$imageUrl. '"
-                                        width="100"
-                                        height="100"
+                                        src="'.$imageUrl. '"                                        
                                     />
                                 </div>                                  
                                 <div class="name"> 
@@ -273,8 +271,6 @@ class EditProid extends Action
                                 <div class="pro-image">
                                     <img 
                                         src="'.$imageUrl. '"
-                                        width="100"
-                                        height="100"
                                     />
                                 </div>                                  
                                 <div class="name"> 

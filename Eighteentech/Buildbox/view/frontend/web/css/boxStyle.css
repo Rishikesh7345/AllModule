@@ -777,3 +777,8 @@ article.cart_pricesSection {
 #name-pop-show:hover{
   cursor:pointer;
 }
+
+p#qty-error {
+  color: red;
+  font-size: 12px;
+}

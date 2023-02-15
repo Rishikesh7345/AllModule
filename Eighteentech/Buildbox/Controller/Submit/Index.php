@@ -70,6 +70,11 @@ class Index extends Action
     protected $customOptions;
 
     /**
+     * @var\Magento\CatalogInventory\Api\StockStateInterface $stockState
+     */
+    protected $stockState;
+
+    /**
      * Constructor.
      *
      * @param Context $context
@@ -84,6 +89,7 @@ class Index extends Action
      * @param ProductFactory $productFactory
      * @param \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository
      * @param \Magento\Catalog\Model\Product\Option $customOptions
+     * @param \Magento\CatalogInventory\Api\StockStateInterface $stockState
      */
     public function __construct(
         Context $context,
@@ -97,7 +103,8 @@ class Index extends Action
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository,
-        \Magento\Catalog\Model\Product\Option $customOptions
+        \Magento\Catalog\Model\Product\Option $customOptions,
+        \Magento\CatalogInventory\Api\StockStateInterface $stockState
     ) {
         $this->formKey = $formKey;
         $this->cart = $cart;
@@ -110,6 +117,7 @@ class Index extends Action
         $this->productFactory = $productFactory;
         $this->_stockItemRepository = $stockItemRepository;
         $this->_customOptions = $customOptions;
+        $this->stockState           = $stockState;
         parent::__construct($context);
     }
 
@@ -121,6 +129,54 @@ class Index extends Action
 		
         $post = $this->getRequest()->getPostValue();
 
+        /**
+         * check Product qty
+         */
+        if(isset($post['getItem'])){            
+            $cart = $this->cart;
+            $quote = $cart->getQuote();
+
+            $cartItems = $cart->getQuote()->getAllItems();
+            foreach($post['getItem'] as $selectedId){            
+                foreach ($cartItems as $item) {
+                    if($item->getItemId() == $selectedId){
+                        if($item->getProductType() != 'configurable'){
+                            
+                             $productQty = $this->stockState->getStockQty($item->getProductId());        
+                            if($post['totalQty'] <= $productQty){
+                                $item->getProductId();
+                            }else{
+                                $data = ['success' => 'true','qtyvalid' => 'false', 'msg' => 'Product qty is not available!'];
+                                $result = $this->jsonResultFactory->create();
+                                $result->setData($data);
+                                return $result;
+                            }
+                            
+                        }else{
+                            
+                            if(isset($post['kitConfChildQtyId'])){
+                                
+                                $kitConfChildQtyId = json_decode($post['kitConfChildQtyId'],true);
+                                
+                                foreach($kitConfChildQtyId as $kitProId => $qty){
+                                    $productQty = $this->stockState->getStockQty($kitProId);                                    
+                                    if($qty <= $productQty){
+                                        "true";
+                                    }else{
+                                        $data = ['success' => 'true','qtyvalid' => 'false', 'msg' => 'Product qty is not available!'];
+                                        $result = $this->jsonResultFactory->create();
+                                        $result->setData($data);
+                                        return $result;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+//         print_r($post);
+// die;
         $kitProQty = 1;
         if(isset($post['kitProQty'])){
             $kitProQty = $post['kitProQty'];
